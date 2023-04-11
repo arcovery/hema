@@ -126,7 +126,7 @@ export default {
 
   .ech {
     float: none;
-    width: 1300px;
+    width: 1400px;
     height: 440px;
   }
 }
