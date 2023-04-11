@@ -33,4 +33,29 @@ export default {
       value: '加班',
     },
   ],
+  //角色类型
+  userNameType: [
+    {
+      id: '2',
+      value: '管理员',
+    },
+    {
+      id: '3',
+      value: '老师',
+    },
+    {
+      id: '4',
+      value: '学生',
+    },
+  ],
+  statusType: [
+    {
+      id: '0',
+      value: '禁用',
+    },
+    {
+      id: '1',
+      value: '启用',
+    },
+  ],
 }
