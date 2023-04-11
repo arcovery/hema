@@ -39,7 +39,7 @@ export function enterpriseEditAPI(data) {
 //  企业删除
 export function enterpriseRemoveAPI(data) {
   return request({
-    url: '/enterprise/remove',
+    url: '/enterprise/remove/' + data.id,
     method: 'post',
     data,
   })
