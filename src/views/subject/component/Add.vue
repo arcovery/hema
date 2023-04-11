@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-dialog title="新增学科" :visible.sync="isShow" class="dialog" @close="delEvent">
+    <el-dialog :title="{ add: '新增学科', edit: '编辑学科' }[tt]" :visible.sync="isShow" class="dialog" @close="delEvent">
       <el-form ref="form" :model="form" label-width="80px" :rules="rules">
         <el-form-item label="学科编号" prop="rid">
           <el-input v-model="form.rid"></el-input>
@@ -9,7 +9,7 @@
           <el-input v-model="form.name"></el-input>
         </el-form-item>
         <el-form-item label="学科简称">
-          <el-input v-model="form.abb"></el-input>
+          <el-input v-model="form.short_name"></el-input>
         </el-form-item>
         <el-form-item label="学科简介">
           <el-input v-model="form.intro"></el-input>
@@ -20,7 +20,7 @@
       </el-form>
       <template #footer>
         <div class="button">
-          <button class="btn btn-ghost btn-outline">取消</button>
+          <button class="btn btn-ghost btn-outline" @click="isShow = false">取消</button>
           <button class="btn btn-primary" @click="submit">确认</button>
         </div>
       </template>
@@ -29,15 +29,21 @@
 </template>
 
 <script>
-import { subjectAddAPI } from '@/api/subject'
+import { subjectAddAPI, subjectEditAPI } from '@/api/subject'
 export default {
   data() {
     return {
+      tt: 'add',
       isShow: false,
+      //       rid	是	string	学科编号
+      //       name	是	string	学科名称
+      //       short_name	否	string	学科简称
+      //       intro	否	string	学科简介
+      //       remark
       form: {
         rid: '',
         name: '',
-        abb: '',
+        short_name: '',
         intro: '',
         remark: '',
       },
@@ -51,11 +57,18 @@ export default {
     submit() {
       this.$refs.form.validate(async (result) => {
         if (result) {
-          const res = await subjectAddAPI(this.form)
-          this.$message.success('增加成功')
-          this.isShow = false
-          this.$emit('getdata')
-          console.log(res)
+          if (this.tt == 'add') {
+            const res = await subjectAddAPI(this.form)
+            this.$message.success('增加成功')
+            this.isShow = false
+            this.$emit('getdata')
+            // console.log(res)
+          } else if (this.tt == 'edit') {
+            const res = await subjectEditAPI(this.form)
+            this.$message.success('更改成功')
+            this.isShow = false
+            this.$emit('getdata')
+          }
         }
       })
     },

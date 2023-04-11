@@ -39,10 +39,10 @@
         <el-table-column prop="update_time" label="创建日期"> </el-table-column>
         <el-table-column prop="status" label="状态"> </el-table-column>
         <el-table-column prop="operation" label="操作">
-          <template #default>
-            <el-button type="text" size="medium">编辑</el-button>
+          <template #default="{ row }">
+            <el-button type="text" size="medium" @click="editEvent(row)">编辑</el-button>
             <el-button type="text" size="medium">禁用</el-button>
-            <el-button type="text" size="medium">删除</el-button>
+            <el-button type="text" size="medium" @click="delEvent(row.id)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -64,7 +64,7 @@
 </template>
 
 <script>
-import { subjectListAPI } from '@/api/subject'
+import { subjectListAPI, subjectRemoveAPI } from '@/api/subject'
 import Add from './component/Add.vue'
 export default {
   name: 'Subject',
@@ -97,8 +97,27 @@ export default {
       this.total = res.data.pagination.total
       // console.log(res)
     },
+    // 新增
     addEvent() {
       this.$refs.add.isShow = true
+      this.$refs.add.tt = 'add'
+    },
+    // 删除
+    async delEvent(id) {
+      await this.$confirm('您确定删除此学科吗?', '警告')
+      await subjectRemoveAPI({ id })
+      this.$message.success('删除成功')
+      if (this.page.page > 1 && this.tableData.length === 1) {
+        this.page.page--
+      }
+      this.getData()
+    },
+    //编辑
+    editEvent(row) {
+      this.$refs.add.isShow = true
+      this.$refs.add.form = JSON.parse(JSON.stringify(row))
+      this.$refs.add.tt = 'edit'
+      console.log(row)
     },
   },
 }
