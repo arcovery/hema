@@ -31,7 +31,13 @@
 
     <el-card>
       <el-table :data="tableData" style="width: 100%">
-        <el-table-column type="index" label="序号"> </el-table-column>
+        <el-table-column label="序号">
+          <template #default="{ $index }">
+            <div>
+              {{ (page.page - 1) * page.limit + $index + 1 }}
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column prop="rid" label="学科编号"> </el-table-column>
         <el-table-column prop="name" label="学科名称"> </el-table-column>
         <el-table-column prop="short_name" label="学科简称"> </el-table-column>
@@ -91,6 +97,7 @@ export default {
     this.getData()
   },
   methods: {
+    //渲染列表
     async getData() {
       const res = await subjectListAPI(this.page)
       this.tableData = res.data.items
@@ -100,7 +107,7 @@ export default {
     // 新增
     addEvent() {
       this.$refs.add.isShow = true
-      this.$refs.add.tt = 'add'
+      this.$refs.add.mode = 'add'
     },
     // 删除
     async delEvent(id) {
@@ -112,12 +119,11 @@ export default {
       }
       this.getData()
     },
-    //编辑
+    // 编辑
     editEvent(row) {
       this.$refs.add.isShow = true
       this.$refs.add.form = JSON.parse(JSON.stringify(row))
-      this.$refs.add.tt = 'edit'
-      console.log(row)
+      this.$refs.add.mode = 'edit'
     },
   },
 }

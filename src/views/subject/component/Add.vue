@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-dialog :title="{ add: '新增学科', edit: '编辑学科' }[tt]" :visible.sync="isShow" class="dialog" @close="delEvent">
+    <el-dialog :title="{ add: '新增学科', edit: '编辑学科' }[mode]" :visible.sync="isShow" class="dialog" @close="delEvent">
       <el-form ref="form" :model="form" label-width="80px" :rules="rules">
         <el-form-item label="学科编号" prop="rid">
           <el-input v-model="form.rid"></el-input>
@@ -33,13 +33,8 @@ import { subjectAddAPI, subjectEditAPI } from '@/api/subject'
 export default {
   data() {
     return {
-      tt: 'add',
+      mode: 'add',
       isShow: false,
-      //       rid	是	string	学科编号
-      //       name	是	string	学科名称
-      //       short_name	否	string	学科简称
-      //       intro	否	string	学科简介
-      //       remark
       form: {
         rid: '',
         name: '',
@@ -57,13 +52,13 @@ export default {
     submit() {
       this.$refs.form.validate(async (result) => {
         if (result) {
-          if (this.tt == 'add') {
+          if (this.mode == 'add') {
             const res = await subjectAddAPI(this.form)
             this.$message.success('增加成功')
             this.isShow = false
             this.$emit('getdata')
             // console.log(res)
-          } else if (this.tt == 'edit') {
+          } else if (this.mode == 'edit') {
             const res = await subjectEditAPI(this.form)
             this.$message.success('更改成功')
             this.isShow = false
