@@ -13,8 +13,8 @@
         </el-form-item>
         <el-form-item label="状态">
           <el-select v-model="formsubject.sate" placeholder="请选择">
-            <el-option label="启用" value="qiyong"></el-option>
-            <el-option label="禁用" value="jingyong"></el-option>
+            <el-option label="启用" value="1"></el-option>
+            <el-option label="禁用" value="0"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -43,11 +43,17 @@
         <el-table-column prop="short_name" label="学科简称"> </el-table-column>
         <el-table-column prop="username" label="创建者"> </el-table-column>
         <el-table-column prop="update_time" label="创建日期"> </el-table-column>
-        <el-table-column prop="status" label="状态"> </el-table-column>
+        <el-table-column prop="status" label="状态">
+          <template #default="{ row }">
+            <div>
+              {{ row.status == 1 ? '启用' : '禁用' }}
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column prop="operation" label="操作">
           <template #default="{ row }">
             <el-button type="text" size="medium" @click="editEvent(row)">编辑</el-button>
-            <el-button type="text" size="medium">禁用</el-button>
+            <el-button type="text" size="medium" @click="stopEvent(row)">{{ row.status == 1 ? '启用' : '禁用' }}</el-button>
             <el-button type="text" size="medium" @click="delEvent(row.id)">删除</el-button>
           </template>
         </el-table-column>
@@ -65,12 +71,14 @@
         </el-pagination>
       </div>
     </el-card>
+
     <Add ref="add" @getdata="getData" />
   </div>
 </template>
 
 <script>
-import { subjectListAPI, subjectRemoveAPI } from '@/api/subject'
+import { subjectListAPI, subjectRemoveAPI, subjectStatusAPI } from '@/api/subject'
+import commonData from '@/api/constant/common'
 import Add from './component/Add.vue'
 export default {
   name: 'Subject',
@@ -90,6 +98,7 @@ export default {
         page: 1,
         limit: 3,
       },
+      commonData,
       total: 50,
     }
   },
@@ -124,6 +133,15 @@ export default {
       this.$refs.add.isShow = true
       this.$refs.add.form = JSON.parse(JSON.stringify(row))
       this.$refs.add.mode = 'edit'
+    },
+    //禁用按钮
+    async stopEvent(row) {
+      const res = await subjectStatusAPI({ id: row.id })
+      console.log(res)
+      if (res.code === 200) {
+        row.status = row.status ? 0 : 1
+      }
+      this.getData()
     },
   },
 }
