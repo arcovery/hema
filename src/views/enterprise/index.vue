@@ -3,24 +3,24 @@
     <el-col>
       <el-card class="enterprise-container">
         <div class="div">
-          <el-form class="form">
+          <el-form class="form" :model="form">
             <el-form-item label="企业编号">
-              <el-input></el-input>
+              <el-input v-model="form.eid"></el-input>
             </el-form-item>
             <el-form-item label="企业名称">
-              <el-input></el-input>
+              <el-input v-model="form.name"></el-input>
             </el-form-item>
             <el-form-item label="创建者">
-              <el-input></el-input>
+              <el-input v-model="form.username"></el-input>
             </el-form-item>
             <el-form-item label="状态">
-              <el-select placeholder="请选择">
-                <el-option v-for="item in getname.status" :key="item.id" v-model="item.value" :value="item.id" :label="item.value"></el-option>
+              <el-select v-model="form.status" placeholder="请选择">
+                <el-option v-for="item in getname.status" :key="item.id" :value="item.id" :label="item.value"></el-option>
               </el-select>
             </el-form-item>
             <el-form>
-              <button class="btn btn-primary">搜索</button>
-              <button class="btn btn-eee btn-outline">清除</button>
+              <button class="btn btn-primary" @click="SearchEnevt">搜索</button>
+              <button class="btn btn-eee btn-outline" @click="clearEvent">清除</button>
               <button class="btn" @click="addClick">+新增企业</button>
             </el-form>
           </el-form>
@@ -30,7 +30,7 @@
           <el-table-column label="序号">
             <template #default="{ $index }">
               <div>
-                {{ (page.page - 1) * page.limit + $index + 1 }}
+                {{ (form.page - 1) * form.limit + $index + 1 }}
               </div>
             </template>
           </el-table-column>
@@ -40,26 +40,27 @@
           <el-table-column prop="update_time" label="创建日期"></el-table-column>
           <el-table-column prop="status" label="状态">
             <template #default="{ row }">
+              <!-- {{ row }} -->
               <div>{{ row.status ? '启用' : '禁用' }}</div>
             </template>
           </el-table-column>
           <el-table-column label="操作">
             <template #default="{ row }">
               <el-button type="text" @click="delEvent(row)">编辑</el-button>
-              <el-button type="text" @click="row.status = !row.status">{{ row.status ? '禁用' : '启用' }}</el-button>
+              <el-button type="text" @click="RowEnevet(row)">{{ row.status ? '禁用' : '启用' }}</el-button>
               <el-button type="text" @click="elEvent(row)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
         <div class="block">
           <el-pagination
-            :current-page.sync="page.page"
-            :page-size.sync="page.limit"
+            :current-page.sync="form.page"
+            :page-size.sync="form.limit"
             :page-sizes="[1, 5, 10, 15, 50, 100]"
             layout="total, sizes, prev, pager, next, jumper"
             :total="total"
             @size-change="sizeChange"
-            @current-change="getData"
+            @current-change="sizeChange"
           >
           </el-pagination>
         </div>
@@ -70,7 +71,7 @@
 </template>
 
 <script>
-import { enterpriseListAPI, enterpriseRemoveAPI } from '@/api/enterprise'
+import { enterpriseListAPI, enterpriseRemoveAPI, enterpriseStatusAPI } from '@/api/enterprise'
 import Add from './components/Add.vue'
 import getname from '@/api/constant/question'
 import jsCookie from 'js-cookie'
@@ -81,34 +82,31 @@ export default {
   },
   data() {
     return {
-      list: [],
       getname,
-      page: {
+      list: [],
+      form: {
+        eid: '', //	否	string	企业id
+        name: '', //	否	string	企业名称
+        username: '', //	否	string	用户名
+        status: '', //	否	string	状态 1（启用） 0（禁用）
         page: 1, //	:'',//否	string	页码 默认为1
         limit: +jsCookie.get('employees_size') || 10, //t	否	string	页尺寸 默认为10
-        // name: '', //	否	string	企业名称
-        // eid: '', //	否	string	企业id
-        // username: '', //	否	string	用户名
-        // status: '', //	否	string	状态 1（启用） 0（禁用）
       },
       total: 100,
     }
   },
   created() {
     this.getData()
-    // console.log('getname', this.getname)
-    // console.log('list', this.list)
   },
   methods: {
-    async getData() {
-      const res = await enterpriseListAPI(this.page)
+    async getData(data) {
+      const res = await enterpriseListAPI(data)
       this.list = res.data.items
       this.total = res.data.pagination.total
-      console.log('getData', res)
     },
     sizeChange() {
-      jsCookie.set('employees_size', this.page.limit)
-      this.getData()
+      this.getData({ ...this.form })
+      jsCookie.set('employees_size', this.form.limit)
     },
     addClick() {
       this.$refs.add.isShow = true
@@ -117,13 +115,10 @@ export default {
     async elEvent(row) {
       await this.$confirm('是否确定删除')
       await enterpriseRemoveAPI(row)
-      if (this.page.page > 1 && this.list.length === 0) {
-        this.page.page--
-        // console.log(this.page.page)
-        // console.log(this.list)
-      }
+      // if (this.form.page > 1 && this.list.length === 0) {
+      //   this.form.page - 1
+      // }
       this.getData()
-      // console.log(res)
     },
     async delEvent(row) {
       // console.log(this.list)
@@ -133,8 +128,29 @@ export default {
       this.$refs.add.form = JSON.parse(JSON.stringify(row))
       // this.$refs.add.agetData()
     },
-    RowEnevet(row) {
-      console.log(row)
+    async RowEnevet(row) {
+      const res = await enterpriseStatusAPI({ id: row.id })
+      if (res.code === 200) {
+        row.status = row.status ? 0 : 1
+      }
+      this.getData()
+      // console.log(res)
+    },
+    async SearchEnevt() {
+      const res = await enterpriseListAPI(this.form)
+      this.list = res.data.items
+      console.log(res)
+    },
+    clearEvent() {
+      this.form = {
+        eid: '',
+        name: '',
+        username: '',
+        status: '',
+        page: 1, //	:'',//否	string	页码 默认为1
+        limit: +jsCookie.get('employees_size') || 10,
+      }
+      this.getData()
     },
   },
 }
