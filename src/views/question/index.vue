@@ -1,9 +1,9 @@
 <template>
   <div class="question-container">
-    <QSelect @searchEvent="searchEvent"></QSelect>
+    <QSelect @searchEvent="searchEvent" @DialogerShow="DialogerShow(false)"></QSelect>
 
     <div class="card w-full bg-base-100 shadow-xl p-5">
-      <button class="btn btn-primary">题库列表</button>
+      <!-- <button class="btn btn-primary">题库列表</button> -->
       <div class="overflow-x-auto w-full">
         <table class="table w-full">
           <!-- head -->
@@ -48,17 +48,19 @@
                 </span>
                 <span v-question:type="item.type"></span>
               </td>
-              <td>{{ item.enterprise_name }}</td>
+              <td>
+                <div class="border text-center rounded-2xl">{{ item.enterprise_name }}</div>
+              </td>
               <td>
                 <div class="flex items-center space-x-3">
-                  <div class="avatar">
+                  <!-- <div class="avatar">
                     <div class="mask mask-squircle w-12 h-12">
-                      <img src="http://localhost:8080/api/upload/20200114/53043f648b360ac32398c365d9c4d2db.jpg" alt="Avatar Tailwind CSS Component" />
+                      <img :src="getAvatar(item.id)" alt="Avatar Tailwind CSS Component" />
                     </div>
-                  </div>
+                  </div> -->
                   <div>
                     <div class="font-bold">{{ item.username }}</div>
-                    <div class="text-sm opacity-50">{{ item.enterprise_name }}</div>
+                    <!-- <div class="text-sm opacity-50">{{ item.enterprise_name }}</div> -->
                   </div>
                 </div>
               </td>
@@ -71,7 +73,7 @@
               <td>{{ item.reads }}</td>
 
               <th class="text-center">
-                <button class="btn btn-ghost btn-xs">编辑</button>
+                <button class="btn btn-ghost btn-xs" @click="editor(item)">编辑</button>
                 <button class="btn btn-ghost btn-xs text-red-600 btn-disabled">删除</button>
               </th>
             </tr>
@@ -107,15 +109,18 @@
       >
       </el-pagination>
     </div>
+    <Dialoger ref="Dialoger"></Dialoger>
   </div>
 </template>
 
 <script>
 import { questionListAPI, questionStatusAPI } from '@/api/question'
 import QSelect from './select.vue'
+import Dialoger from './qdialog.vue'
+import { userListAPI } from '@/api/user'
 export default {
   name: 'Question',
-  components: { QSelect },
+  components: { Dialoger, QSelect },
   data() {
     return {
       currentPage: 1,
@@ -152,6 +157,19 @@ export default {
       const res = Object.assign(data, this.pagination)
       this.initData(res)
     },
+    // 显示对话框
+    DialogerShow(status) {
+      this.$refs.Dialoger.dialogFormVisible = true
+    },
+    editor(item) {
+      this.$refs.Dialoger.dialogFormVisible = true
+      this.$refs.Dialoger.form = item
+    },
+    async getAvatar(username) {
+      const res = await userListAPI({ username: 'wlj12334' })
+      console.log(res)
+      return
+    },
   },
 }
 </script>
@@ -179,5 +197,14 @@ export default {
     height: 16px;
     vertical-align: middle;
   }
+}
+</style>
+
+<style lang="scss" scoped>
+::v-deep .el-dialog {
+  border-radius: 24px;
+  // &::-webkit-scrollbar {
+  //   width: 0;
+  // }
 }
 </style>

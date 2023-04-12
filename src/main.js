@@ -20,10 +20,16 @@ import '@/permission' // 权限 管理
 Vue.use(ElementUI)
 
 Vue.config.productionTip = false
-
+import { detectZoom } from '@/utils/detectZoom'
+// 处理笔记本系统默认系统比例为150%带来的布局影响
+const m = detectZoom()
+document.body.style.zoom = 100 / Number(m)
 new Vue({
   el: '#app',
   router,
   store,
+  beforeCreate() {
+    Vue.prototype.$bus = this //安装全局事件总线，$bus就是当前应用的vm
+  },
   render: (h) => h(App),
 })
