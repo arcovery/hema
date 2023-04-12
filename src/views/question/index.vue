@@ -74,7 +74,7 @@
 
               <th class="text-center">
                 <button class="btn btn-ghost btn-xs" @click="editor(item)">编辑</button>
-                <button class="btn btn-ghost btn-xs text-red-600 btn-disabled">删除</button>
+                <button class="btn btn-ghost btn-xs text-red-600" @click="deleteEvent(item)">删除</button>
               </th>
             </tr>
           </tbody>
@@ -109,15 +109,16 @@
       >
       </el-pagination>
     </div>
-    <Dialoger ref="Dialoger"></Dialoger>
+    <Dialoger ref="Dialoger" @initData="initData()"></Dialoger>
   </div>
 </template>
 
 <script>
-import { questionListAPI, questionStatusAPI } from '@/api/question'
+import { questionListAPI, questionRemoveAPI, questionStatusAPI } from '@/api/question'
 import QSelect from './select.vue'
 import Dialoger from './qdialog.vue'
 import { userListAPI } from '@/api/user'
+import jsCookie from 'js-cookie'
 export default {
   name: 'Question',
   components: { Dialoger, QSelect },
@@ -127,7 +128,7 @@ export default {
       total: 10,
       pagination: {
         page: 1,
-        limit: 5,
+        limit: Number(jsCookie.get('limit')) || 5,
       },
       data: [],
     }
@@ -139,6 +140,7 @@ export default {
     // 当前页面改变
     async handleCurrentChange() {
       this.initData(this.pagination)
+      jsCookie.set('limit', this.pagination.limit)
     },
 
     // 初始化数据
@@ -161,14 +163,36 @@ export default {
     DialogerShow(status) {
       this.$refs.Dialoger.dialogFormVisible = true
     },
+    // 编辑对话框
     editor(item) {
       this.$refs.Dialoger.dialogFormVisible = true
       this.$refs.Dialoger.form = item
     },
+    // 获取头像
     async getAvatar(username) {
-      const res = await userListAPI({ username: 'wlj12334' })
+      const res = await userListAPI({ username })
       console.log(res)
       return
+    },
+    // 删除事件
+    deleteEvent(data) {
+      this.$confirm('确认是否删除？', '温馨提醒', {
+        distinguishCancelAndClose: false,
+        confirmButtonText: '确定',
+        cancelButtonText: '我点错了',
+        showClose: false,
+      })
+        .then(async () => {
+          await questionRemoveAPI({ id: data.id })
+          // 解决数据只剩一条点击删除后页面为空的问题
+          if (this.data.length === 1 && this.pagination.page > 1) {
+            this.pagination.page = this.pagination.page - 1
+          }
+          this.initData(this.pagination)
+        })
+        .catch((text) => {
+          console.log(text)
+        })
     },
   },
 }
