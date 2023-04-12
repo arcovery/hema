@@ -54,7 +54,7 @@
       <div class="mr-2 mb-2 w-1/6 flex justify-evenly items-end">
         <button class="btn btn-primary" @click="searchEvent">搜索</button>
         <button class="btn btn-ghost btn-outline" @click="resetEvent">重置</button>
-        <button class="btn">新增题目</button>
+        <button class="btn" @click="DialogerShow">新增题目</button>
       </div>
     </div>
   </div>
@@ -92,8 +92,14 @@ export default {
     this.subject = res.data.items
     const res2 = await enterpriseListAPI({ limit: 9999 })
     this.enterprise = res2.data.items
+    this.$bus.$emit('enterprise', this.enterprise)
+    this.$bus.$emit('subject', this.subject)
   },
   mounted() {},
+  beforeDestroy() {
+    this.$bus.$off('enterprise', this.enterprise)
+    this.$bus.$off('subject', this.subject)
+  },
   methods: {
     // 搜索
     searchEvent() {
@@ -104,42 +110,10 @@ export default {
       Object.keys(this.search).forEach((i) => (this.search[i] = ''))
       this.$emit('searchEvent', {})
     },
+    // 显示新增对话框
+    DialogerShow() {
+      this.$emit('DialogerShow')
+    },
   },
 }
 </script>
-
-<style lang="scss" scoped>
-$bg: #283443;
-$light_gray: #000000;
-$cursor: #fff;
-
-/* reset element-ui css */
-::v-deep .el-input {
-  display: inline-block;
-  height: 47px;
-  width: 100%;
-  color: #000;
-  background: #f9f9f9;
-  border-radius: 15px;
-  input {
-    background: transparent;
-    border: 0px;
-    -webkit-appearance: none;
-    border-radius: 0px;
-    padding: 12px 5px 12px 15px;
-    color: $light_gray;
-    height: 47px;
-    // caret-color: $cursor;
-
-    // &:-webkit-autofill {
-    //   box-shadow: 0 0 0px 1000px $bg inset !important;
-    //   -webkit-text-fill-color: $cursor !important;
-    // }
-  }
-}
-.date {
-  ::v-deep input {
-    text-indent: 2em;
-  }
-}
-</style>

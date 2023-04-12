@@ -44,3 +44,11 @@ export function questionRemoveAPI(data) {
     data,
   })
 }
+//  上传文件
+export function questionUploadAPI(data) {
+  return request({
+    url: '/question/upload',
+    method: 'post',
+    data,
+  })
+}
