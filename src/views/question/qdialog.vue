@@ -105,11 +105,12 @@ import question from '@/api/constant/question.js'
 import wangEditor from './wangEditor.vue'
 import checkbox from './components/checkbox.vue'
 import { regionDataPlus } from 'element-china-area-data'
-import { questionAddAPI } from '@/api/question'
+import { questionAddAPI, questionEditAPI } from '@/api/question'
 export default {
   components: { wangEditor, checkbox },
   data() {
     return {
+      isEdit: false,
       dialogFormVisible: false,
       formLabelWidth: '120px',
       subject: [],
@@ -120,7 +121,8 @@ export default {
       difficulty: question.difficulty,
       status: question.status,
       form: {
-        title: '关于HTML语义化，以下哪个说法是正确的？（ ）', //									 string	标题
+        title: '', //									 string	标题
+        // title: '关于HTML语义化，以下哪个说法是正确的？（ ）', //									 string	标题
         subject: '', //								 int	学科id标识
         step: '', //									 int	阶段1、初级 2、中级 3、高级
         enterprise: '', //						 int	企业id标识
@@ -131,14 +133,18 @@ export default {
         multiple_select_answer: '', // array	多选题答案
         short_answer: '', //					 string	简答题答案
         video: '', //									 string	解析视频地址
-        answer_analyze:
-          '<div data-w-e-type="todo"><input type="checkbox" disabled >1、<strong>什么是HTML语义化</strong>？<span style="color: rgb(225, 60, 57);">根据内容的结构化（内容语义化</span>），<span style="background-color: rgb(216, 68, 147);">选择合适的标签（</span><span style="background-color: rgb(216, 68, 147); font-size: 22px;"><strong>代码语义化</strong></span><span style="background-color: rgb(216, 68, 147);">）便于开发者阅读和写出更优雅的代码的同时让浏览器的爬虫和机器很好地解析。</span></div><div data-w-e-type="todo"><input type="checkbox" disabled >2、<strong>为什么要语义化？</strong><span style="font-size: 14px;"><u>为了在没有</u></span><span style="font-size: 14px; font-family: 微软雅黑;"><u>CSS</u></span><span style="font-size: 14px;"><u>的情况下，页面也能呈现出很好地内容结构、</u></span><span style="background-color: rgb(255, 236, 61); font-size: 14px;"><u>代码结构用户体验</u></span></div>', //				 string	答案解析
+        answer_analyze: '', //				 string	答案解析
+        // '<div data-w-e-type="todo"><input type="checkbox" disabled >1、<strong>什么是HTML语义化</strong>？<span style="color: rgb(225, 60, 57);">根据内容的结构化（内容语义化</span>），<span style="background-color: rgb(216, 68, 147);">选择合适的标签（</span><span style="background-color: rgb(216, 68, 147); font-size: 22px;"><strong>代码语义化</strong></span><span style="background-color: rgb(216, 68, 147);">）便于开发者阅读和写出更优雅的代码的同时让浏览器的爬虫和机器很好地解析。</span></div><div data-w-e-type="todo"><input type="checkbox" disabled >2、<strong>为什么要语义化？</strong><span style="font-size: 14px;"><u>为了在没有</u></span><span style="font-size: 14px; font-family: 微软雅黑;"><u>CSS</u></span><span style="font-size: 14px;"><u>的情况下，页面也能呈现出很好地内容结构、</u></span><span style="background-color: rgb(255, 236, 61); font-size: 14px;"><u>代码结构用户体验</u></span></div>', //				 string	答案解析
         remark: '', //								 string	答案备注
         select_options: [
-          { label: 'A', text: '语义化的HTML有利于机器的阅读，如PDA手持设备、搜索引擎爬虫；但不利于人的阅读', image: '' },
-          { label: 'B', text: 'Table 属于过时的标签，遇到数据列表时，需尽量使用 div 来模拟表格', image: '' },
-          { label: 'C', text: '语义化是HTML5带来的新概念，此前版本的HTML无法做到语义化', image: '' },
-          { label: 'D', text: 'header、article、address都属于语义化明确的标签', image: '' },
+          { label: 'A', text: '', image: '' },
+          { label: 'B', text: '', image: '' },
+          { label: 'C', text: '', image: '' },
+          { label: 'D', text: '', image: '' },
+          // { label: 'A', text: '语义化的HTML有利于机器的阅读，如PDA手持设备、搜索引擎爬虫；但不利于人的阅读', image: '' },
+          // { label: 'B', text: 'Table 属于过时的标签，遇到数据列表时，需尽量使用 div 来模拟表格', image: '' },
+          // { label: 'C', text: '语义化是HTML5带来的新概念，此前版本的HTML无法做到语义化', image: '' },
+          // { label: 'D', text: 'header、article、address都属于语义化明确的标签', image: '' },
         ], //				 array	选项，介绍，图片介绍
       },
       rules: {
@@ -160,6 +166,7 @@ export default {
     }
   },
   computed: {
+    // 答题模式
     answer: {
       get() {
         return this.form.type == 1 ? 'form.single_select_answer' : 'form.multiple_select_answer'
@@ -169,6 +176,7 @@ export default {
         this.form.type == 1 ? (this.form.single_select_answer = val) : (this.form.multiple_select_answer = val)
       },
     },
+    // 城市列表数据处理
     cityComputed: {
       get() {
         if (typeof this.form.city == 'string') {
@@ -183,6 +191,7 @@ export default {
     },
   },
   mounted() {
+    // 获取企业信息,学科信息
     this.$bus.$on('enterprise', (val) => {
       this.enterprise = val
     })
@@ -191,18 +200,37 @@ export default {
     })
   },
   methods: {
+    // 初始化数据
+    initData() {
+      Object.keys(this.form).forEach((key) => {
+        if (key == 'select_options') {
+          this.form[key] = this.form[key].map((item) => {
+            return {
+              label: item.label,
+            }
+          })
+        } else if (key == 'type') {
+          return
+        } else {
+          this.form[key] = ''
+        }
+      })
+      this.$refs.form.resetFields()
+    },
+    // 提交表单
     submitForm() {
       this.$refs.form.validate(async (valid) => {
         if (valid) {
-          alert('submit!')
-          const res = await questionAddAPI(this.form)
+          const res = this.isEdit ? await questionEditAPI(this.form) : await questionAddAPI(this.form)
+          this.initData()
           console.log(res)
         } else {
-          console.log('error submit!!')
+          console.log('%c Line:203 🍋 验证失败', 'color:#f5ce50', '验证失败')
           return false
         }
       })
     },
+    // 取消提示
     handleClose() {
       this.$confirm('检测到未保存的内容，是否离开页面？', '确认信息', {
         distinguishCancelAndClose: false,
@@ -212,13 +240,11 @@ export default {
       })
         .then(() => {
           this.dialogFormVisible = false
+          this.initData()
+          this.$refs.form.resetFields()
         })
         .catch((action) => {
           console.log(action)
-          this.$message({
-            type: 'info',
-            message: action === 'cancel' ? '放弃保存并离开页面' : '停留在当前页面',
-          })
         })
     },
   },

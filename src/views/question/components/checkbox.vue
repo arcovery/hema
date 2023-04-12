@@ -7,8 +7,8 @@
         <span class="mx-2">{{ item.label }}</span>
         <el-input v-model="item.text" placeholder="">
           <div v-if="item.image" slot="suffix">
-            <el-popover placement="left" width="265" trigger="hover">
-              <el-image class="w-60 h-60" :src="baseURL + item.image" :preview-src-list="imageList"> </el-image>
+            <el-popover placement="left" trigger="hover">
+              <el-image :src="baseURL + item.image" fit="cover" :preview-src-list="imageList"> </el-image>
               <el-image slot="reference" class="h-10 w-10 rounded-full mr-1 align-middle mt-1" :src="baseURL + item.image" fit="cover"></el-image>
             </el-popover>
           </div>
