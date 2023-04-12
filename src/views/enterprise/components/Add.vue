@@ -30,6 +30,12 @@
 <script>
 import { enterpriseAddAPI, enterpriseEditAPI } from '@/api/enterprise'
 export default {
+  props: {
+    add: {
+      type: Array,
+      required: true,
+    },
+  },
   data() {
     return {
       isShow: false,
@@ -43,8 +49,24 @@ export default {
         remark: '', //
       },
       rules: {
-        eid: [{ required: true, message: '请输入企业编号', trigger: 'change' }],
-        name: [{ required: true, message: '请输入企业名称', trigger: 'change' }],
+        eid: [
+          { required: true, message: '请输入企业编号', trigger: 'change' },
+          {
+            validator: (rule, value, callback) => {
+              const AddEid = this.add.every((item) => item.eid !== value)
+              AddEid ? callback() : callback(new Error('企业编号重复:' + value))
+            },
+          },
+        ],
+        name: [
+          { required: true, message: '请输入企业名称', trigger: 'change' },
+          {
+            validator: (rule, value, callback) => {
+              const AddName = this.add.every((item) => item.name !== value)
+              AddName ? callback() : callback(new Error('企业名称重复:' + value))
+            },
+          },
+        ],
         short_name: [{ required: true, message: '请输入企业简称', trigger: 'change' }],
         intro: [{ required: true, message: '请输入企业简介', trigger: 'change' }],
       },

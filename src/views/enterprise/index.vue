@@ -25,12 +25,15 @@
             </el-form>
           </el-form>
         </div>
-
+      </el-card>
+    </el-col>
+    <el-col>
+      <el-card class="enterprise-container">
         <el-table :data="list">
           <el-table-column label="序号">
             <template #default="{ $index }">
               <div>
-                {{ (form.page - 1) * form.limit + $index + 1 }}
+                {{ (page.page - 1) * page.limit + $index + 1 }}
               </div>
             </template>
           </el-table-column>
@@ -54,8 +57,8 @@
         </el-table>
         <div class="block">
           <el-pagination
-            :current-page.sync="form.page"
-            :page-size.sync="form.limit"
+            :current-page.sync="page.page"
+            :page-size.sync="page.limit"
             :page-sizes="[1, 5, 10, 15, 50, 100]"
             layout="total, sizes, prev, pager, next, jumper"
             :total="total"
@@ -65,7 +68,7 @@
           </el-pagination>
         </div>
       </el-card>
-      <Add ref="add" @getData="getData"></Add>
+      <Add ref="add" :add="Add" @getData="getData(page)"></Add>
     </el-col>
   </el-row>
 </template>
@@ -84,11 +87,14 @@ export default {
     return {
       getname,
       list: [],
+      Add: [],
       form: {
         eid: '', //	否	string	企业id
         name: '', //	否	string	企业名称
         username: '', //	否	string	用户名
         status: '', //	否	string	状态 1（启用） 0（禁用）
+      },
+      page: {
         page: 1, //	:'',//否	string	页码 默认为1
         limit: +jsCookie.get('employees_size') || 10, //t	否	string	页尺寸 默认为10
       },
@@ -96,17 +102,27 @@ export default {
     }
   },
   created() {
-    this.getData()
+    this.getData({ ...this.form, page: 1, limit: this.page.limit })
   },
   methods: {
     async getData(data) {
       const res = await enterpriseListAPI(data)
-      this.list = res.data.items
+      const res1 = await enterpriseListAPI()
       this.total = res.data.pagination.total
+      this.list = res.data.items
+      this.Add = res1.data.items
+      console.log(res)
     },
     sizeChange() {
-      this.getData({ ...this.form })
-      jsCookie.set('employees_size', this.form.limit)
+      this.getData(
+        // eid: '', //	否	string	企业id
+        // name: '', //	否	string	企业名称
+        // username: '', //	否	string	用户名
+        // status: '', //	否	string	状态 1（启用） 0（禁用）
+        this.page,
+      )
+
+      jsCookie.set('employees_size', this.page.limit)
     },
     addClick() {
       this.$refs.add.isShow = true
@@ -114,14 +130,15 @@ export default {
     },
     async elEvent(row) {
       await this.$confirm('是否确定删除')
-      await enterpriseRemoveAPI(row)
-      // if (this.form.page > 1 && this.list.length === 0) {
-      //   this.form.page - 1
-      // }
-      this.getData()
+      const res = await enterpriseRemoveAPI(row)
+      if (this.page.page > 1 && this.list.length === 1) {
+        this.page.page--
+      }
+      this.getData(this.page)
+      // this.sizeChange()
     },
     async delEvent(row) {
-      // console.log(this.list)
+      // cosizeChange
       this.$refs.add.isShow = true
       this.$refs.add.mode = 'edit'
       this.$refs.add.id = row.id
@@ -133,13 +150,25 @@ export default {
       if (res.code === 200) {
         row.status = row.status ? 0 : 1
       }
-      this.getData()
+      // this.getData({ ...this.form })
+      // this.sizeChange()
       // console.log(res)
+      this.SearchEnevt()
     },
     async SearchEnevt() {
-      const res = await enterpriseListAPI(this.form)
-      this.list = res.data.items
-      console.log(res)
+      //判断对象的值是不是全为空
+      if (this.form.eid || this.form.name || this.form.username || this.form.status === 0 || this.form.status === 1) {
+        this.list.every((item) => {
+          if (item === this.form) {
+            return true
+          }
+        })
+        const res = await enterpriseListAPI({ ...this.form, ...this.page })
+        this.total = res.data.pagination.total
+        this.list = res.data.items
+      } else {
+        return false
+      }
     },
     clearEvent() {
       this.form = {
@@ -147,10 +176,8 @@ export default {
         name: '',
         username: '',
         status: '',
-        page: 1, //	:'',//否	string	页码 默认为1
-        limit: +jsCookie.get('employees_size') || 10,
       }
-      this.getData()
+      this.getData({ ...this.form, ...this.page })
     },
   },
 }
@@ -158,7 +185,7 @@ export default {
 
 <style lang="scss" scoped>
 .enterprise-container {
-  margin: 20px;
+  margin: 15px;
   .div {
     .form {
       display: flex;
