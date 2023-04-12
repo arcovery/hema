@@ -18,11 +18,8 @@
     "axios": "0.18.1",
     "core-js": "3.6.5",
     "daisyui": "^2.51.5",
-<<<<<<< HEAD
     "echarts": "^5.4.2",
-=======
     "element-china-area-data": "^5.0.2",
->>>>>>> zbh
     "element-ui": "2.13.2",
     "js-cookie": "^2.2.0",
     "normalize.css": "7.0.0",
