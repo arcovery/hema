@@ -3,22 +3,22 @@
     <el-card>
       <el-form v-model="formsubject" :inline="true" class="form">
         <el-form-item label="学科编号">
-          <el-input v-model="formsubject.num"></el-input>
+          <el-input v-model.trim="formsubject.rid"></el-input>
         </el-form-item>
         <el-form-item label="学科名称">
-          <el-input v-model="formsubject.name"></el-input>
+          <el-input v-model.trim="formsubject.name"></el-input>
         </el-form-item>
         <el-form-item label="创建者">
-          <el-input v-model="formsubject.creator"></el-input>
+          <el-input v-model.trim="formsubject.username"></el-input>
         </el-form-item>
         <el-form-item label="状态">
-          <el-select v-model="formsubject.sate" placeholder="请选择">
+          <el-select v-model="formsubject.status" placeholder="请选择">
             <el-option label="启用" value="1"></el-option>
             <el-option label="禁用" value="0"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item>
-          <button class="btn btn-primary">搜索</button>
+          <button class="btn btn-primary" @click="searchEvent">搜索</button>
         </el-form-item>
         <el-form-item>
           <button class="btn btn-ghost btn-outline">清除</button>
@@ -30,7 +30,7 @@
     </el-card>
 
     <el-card>
-      <el-table :data="tableData" style="width: 100%">
+      <el-table :data="list" style="width: 100%">
         <el-table-column label="序号">
           <template #default="{ $index }">
             <div>
@@ -65,14 +65,14 @@
           :page-sizes="[1, 3, 5, 10, 20, 50]"
           layout="total, sizes, prev, pager, next, jumper"
           :total="total"
-          @size-change="getData"
-          @current-change="getData"
+          @size-change="sizeChange"
+          @current-change="sizeChange"
         >
         </el-pagination>
       </div>
     </el-card>
 
-    <Add ref="add" @getdata="getData" />
+    <Add ref="add" @getdata="getData()" />
   </div>
 </template>
 
@@ -80,6 +80,7 @@
 import { subjectListAPI, subjectRemoveAPI, subjectStatusAPI } from '@/api/subject'
 import commonData from '@/api/constant/common'
 import Add from './component/Add.vue'
+import jsCookie from 'js-cookie'
 export default {
   name: 'Subject',
   components: {
@@ -88,30 +89,34 @@ export default {
   data() {
     return {
       formsubject: {
-        num: '',
+        rid: '',
         name: '',
-        creator: '',
-        sate: '',
+        username: '',
+        status: '',
       },
-      tableData: [],
+      list: [],
       page: {
         page: 1,
-        limit: 3,
+        limit: +jsCookie.get('www') || 3,
       },
       commonData,
       total: 50,
     }
   },
   created() {
-    this.getData()
+    this.getData(this.page)
   },
   methods: {
     //渲染列表
-    async getData() {
-      const res = await subjectListAPI(this.page)
-      this.tableData = res.data.items
+    async getData(data) {
+      const res = await subjectListAPI(data)
+      this.list = res.data.items
       this.total = res.data.pagination.total
       // console.log(res)
+    },
+    sizeChange() {
+      this.getData(this.page)
+      jsCookie.set('www', this.page.limit)
     },
     // 新增
     addEvent() {
@@ -121,12 +126,14 @@ export default {
     // 删除
     async delEvent(id) {
       await this.$confirm('您确定删除此学科吗?', '警告')
-      await subjectRemoveAPI({ id })
-      this.$message.success('删除成功')
-      if (this.page.page > 1 && this.tableData.length === 1) {
-        this.page.page--
+      const res = await subjectRemoveAPI({ id })
+      if (res.code == 200) {
+        this.$message.success('删除成功')
+        if (this.page.page > 1 && this.list.length === 1) {
+          this.page.page--
+        }
+        this.getData(this.page)
       }
-      this.getData()
     },
     // 编辑
     editEvent(row) {
@@ -143,6 +150,17 @@ export default {
       }
       this.getData()
     },
+    // 搜索
+    async searchEvent() {
+      const res = await subjectListAPI({ ...this.page, ...this.formsubject })
+      console.log(res)
+      this.list = res.data.items
+      this.total = res.data.pagination.total
+    },
+    //清空
+    // emptyEvent() {
+    //   this.formsubject = ''
+    // },
   },
 }
 </script>
