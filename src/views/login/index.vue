@@ -39,7 +39,6 @@
 <script>
 import Register from './register.vue'
 import login from './login.vue'
-import Likes from '@/utils/likes'
 export default {
   name: 'Login',
   components: { login, Register },
@@ -81,10 +80,11 @@ export default {
   z-index: 999;
 }
 .login-container {
-  position: relative;
+  /* position: relative; */
   width: 100%;
   background: linear-gradient(#1493fa 28%, #01c6fa 96%);
   min-height: 100vh;
+  /* height: 125vh; */
   overflow: hidden;
 }
 

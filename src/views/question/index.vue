@@ -1,9 +1,9 @@
 <template>
   <div class="question-container">
-    <QSelect @searchEvent="searchEvent"></QSelect>
+    <QSelect @searchEvent="searchEvent" @DialogerShow="DialogerShow(false)"></QSelect>
 
     <div class="card w-full bg-base-100 shadow-xl p-5">
-      <button class="btn btn-primary">题库列表</button>
+      <!-- <button class="btn btn-primary">题库列表</button> -->
       <div class="overflow-x-auto w-full">
         <table class="table w-full">
           <!-- head -->
@@ -48,17 +48,19 @@
                 </span>
                 <span v-question:type="item.type"></span>
               </td>
-              <td>{{ item.enterprise_name }}</td>
+              <td>
+                <div class="border text-center rounded-2xl">{{ item.enterprise_name }}</div>
+              </td>
               <td>
                 <div class="flex items-center space-x-3">
-                  <div class="avatar">
+                  <!-- <div class="avatar">
                     <div class="mask mask-squircle w-12 h-12">
-                      <img src="http://localhost:8080/api/upload/20200114/53043f648b360ac32398c365d9c4d2db.jpg" alt="Avatar Tailwind CSS Component" />
+                      <img :src="getAvatar(item.id)" alt="Avatar Tailwind CSS Component" />
                     </div>
-                  </div>
+                  </div> -->
                   <div>
                     <div class="font-bold">{{ item.username }}</div>
-                    <div class="text-sm opacity-50">{{ item.enterprise_name }}</div>
+                    <!-- <div class="text-sm opacity-50">{{ item.enterprise_name }}</div> -->
                   </div>
                 </div>
               </td>
@@ -71,8 +73,8 @@
               <td>{{ item.reads }}</td>
 
               <th class="text-center">
-                <button class="btn btn-ghost btn-xs">编辑</button>
-                <button class="btn btn-ghost btn-xs text-red-600 btn-disabled">删除</button>
+                <button class="btn btn-ghost btn-xs" @click="editor(item)">编辑</button>
+                <button class="btn btn-ghost btn-xs text-red-600" @click="deleteEvent(item)">删除</button>
               </th>
             </tr>
           </tbody>
@@ -107,22 +109,26 @@
       >
       </el-pagination>
     </div>
+    <Dialoger ref="Dialoger" @initData="initData()"></Dialoger>
   </div>
 </template>
 
 <script>
-import { questionListAPI, questionStatusAPI } from '@/api/question'
+import { questionListAPI, questionRemoveAPI, questionStatusAPI } from '@/api/question'
 import QSelect from './select.vue'
+import Dialoger from './qdialog.vue'
+import { userListAPI } from '@/api/user'
+import jsCookie from 'js-cookie'
 export default {
   name: 'Question',
-  components: { QSelect },
+  components: { Dialoger, QSelect },
   data() {
     return {
       currentPage: 1,
       total: 10,
       pagination: {
         page: 1,
-        limit: 5,
+        limit: Number(jsCookie.get('limit')) || 5,
       },
       data: [],
     }
@@ -134,6 +140,7 @@ export default {
     // 当前页面改变
     async handleCurrentChange() {
       this.initData(this.pagination)
+      jsCookie.set('limit', this.pagination.limit)
     },
 
     // 初始化数据
@@ -151,6 +158,41 @@ export default {
     searchEvent(data) {
       const res = Object.assign(data, this.pagination)
       this.initData(res)
+    },
+    // 显示对话框
+    DialogerShow(status) {
+      this.$refs.Dialoger.dialogFormVisible = true
+    },
+    // 编辑对话框
+    editor(item) {
+      this.$refs.Dialoger.dialogFormVisible = true
+      this.$refs.Dialoger.form = item
+    },
+    // 获取头像
+    async getAvatar(username) {
+      const res = await userListAPI({ username })
+      console.log(res)
+      return
+    },
+    // 删除事件
+    deleteEvent(data) {
+      this.$confirm('确认是否删除？', '温馨提醒', {
+        distinguishCancelAndClose: false,
+        confirmButtonText: '确定',
+        cancelButtonText: '我点错了',
+        showClose: false,
+      })
+        .then(async () => {
+          await questionRemoveAPI({ id: data.id })
+          // 解决数据只剩一条点击删除后页面为空的问题
+          if (this.data.length === 1 && this.pagination.page > 1) {
+            this.pagination.page = this.pagination.page - 1
+          }
+          this.initData(this.pagination)
+        })
+        .catch((text) => {
+          console.log(text)
+        })
     },
   },
 }
@@ -179,5 +221,14 @@ export default {
     height: 16px;
     vertical-align: middle;
   }
+}
+</style>
+
+<style lang="scss" scoped>
+::v-deep .el-dialog {
+  border-radius: 24px;
+  // &::-webkit-scrollbar {
+  //   width: 0;
+  // }
 }
 </style>

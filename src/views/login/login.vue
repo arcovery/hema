@@ -28,6 +28,7 @@
     <el-form-item prop="check">
       <el-checkbox v-model="loginForm.check">我已阅读并同意<span class="check">用户协议</span>和<span class="check">隐私条款</span></el-checkbox>
     </el-form-item>
+
     <button :class="{ loading: loading, 'btn-disabled': loading }" class="btn btn-primary" style="width: 100%; margin-bottom: 30px" @click.prevent="handleLogin">登录</button>
   </el-form>
 </template>
@@ -35,7 +36,6 @@
 <script>
 export default {
   name: 'Login',
-
   data() {
     const check = (rule, value, callback) => {
       console.log(rule, value, callback)
@@ -179,7 +179,7 @@ $light_gray: #000000;
   position: relative;
   width: 520px;
   max-width: 100%;
-  margin: 250px 0 100px 300px;
+  margin: 250px 0 100px 200px;
   overflow: hidden;
   align-items: unset;
 }
