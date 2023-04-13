@@ -126,6 +126,9 @@ export default {
       this.list = res.data.items
     },
     sizeChange() {
+      // if (this.search) {
+      //   this.form2 = JSON.parse(JSON.stringify(this.form))
+      // }
       if (this.search) {
         this.getData({ ...this.form2, ...this.page })
       } else {
@@ -174,6 +177,7 @@ export default {
       this.getData(this.page)
     },
     async SearchEnevt() {
+      this.search = false
       //判断对象的值是不是全为空
       if (this.form.eid || this.form.name || this.form.username || this.form.status === 0 || this.form.status === 1) {
         this.list.every((item) => {
