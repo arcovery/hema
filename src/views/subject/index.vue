@@ -145,7 +145,7 @@ export default {
         if (this.page.page > 1 && this.list.length === 1) {
           this.page.page--
         }
-        this.getData(this.page)
+        this.getData({ ...this.page, ...this.formsubject })
       }
     },
     // 编辑
@@ -171,19 +171,20 @@ export default {
     async searchEvent() {
       this.search = false
       if (Object.values(this.formsubject).some((i) => i)) {
+        this.page.page = 1
         const res = await subjectListAPI({ ...this.formsubject, ...this.page })
         console.log(res)
         this.list = res.data.items
         this.total = res.data.pagination.total
       } else {
-        this.$message.error('请输入搜索内容')
+        this.getData(this.page)
       }
       this.search = true
     },
     //清空
     clearEvent() {
       Object.keys(this.formsubject).forEach((i) => (this.formsubject[i] = ''))
-      this.getData()
+      this.getData(this.page)
     },
   },
 }
