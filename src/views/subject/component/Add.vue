@@ -43,8 +43,14 @@ export default {
         remark: '',
       },
       rules: {
-        rid: [{ required: true, message: '编码不能为空', trigger: 'change' }],
-        name: [{ required: true, message: '名称不能为空', trigger: 'change' }],
+        rid: [
+          { required: true, message: '编码不能为空', trigger: 'change' },
+          { max: 7, min: 2, message: '请输入2-7个字符', trigger: 'change' },
+        ],
+        name: [
+          { required: true, message: '名称不能为空', trigger: 'change' },
+          { max: 7, min: 2, message: '请输入2-7个字符', trigger: 'change' },
+        ],
       },
     }
   },
@@ -52,18 +58,18 @@ export default {
     submit() {
       this.$refs.form.validate(async (result) => {
         if (result) {
-          if (this.mode == 'add') {
-            const res = await subjectAddAPI(this.form)
-            this.$message.success('增加成功')
-            this.isShow = false
-            this.$emit('getdata')
-            // console.log(res)
-          } else if (this.mode == 'edit') {
-            const res = await subjectEditAPI(this.form)
-            this.$message.success('更改成功')
+          const res = this.mode == 'add' ? await subjectAddAPI(this.form) : await subjectEditAPI(this.form)
+          if (res.code === 200) {
+            this.$message.success('操作成功')
             this.isShow = false
             this.$emit('getdata')
           }
+          // if (this.mode == 'add') {
+          //   res = await subjectAddAPI(this.form)
+          //   // console.log(res)
+          // } else {
+          //   res = await subjectEditAPI(this.form)
+          // }
         }
       })
     },

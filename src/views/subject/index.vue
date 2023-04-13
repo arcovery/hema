@@ -3,25 +3,25 @@
     <el-card>
       <el-form v-model="formsubject" :inline="true" class="form">
         <el-form-item label="学科编号">
-          <el-input v-model.trim="formsubject.rid"></el-input>
+          <el-input v-model.trim="formsubject.rid" clearable=""></el-input>
         </el-form-item>
         <el-form-item label="学科名称">
-          <el-input v-model.trim="formsubject.name"></el-input>
+          <el-input v-model.trim="formsubject.name" clearable=""></el-input>
         </el-form-item>
         <el-form-item label="创建者">
-          <el-input v-model.trim="formsubject.username"></el-input>
+          <el-input v-model.trim="formsubject.username" clearable=""></el-input>
         </el-form-item>
         <el-form-item label="状态">
-          <el-select v-model="formsubject.status" placeholder="请选择">
-            <el-option label="启用" value="1"></el-option>
-            <el-option label="禁用" value="0"></el-option>
+          <el-select v-model="formsubject.status" clearable="" placeholder="请选择">
+            <el-option label="禁用" value="1"></el-option>
+            <el-option label="启用" value="0"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item>
           <button class="btn btn-primary" @click="searchEvent">搜索</button>
         </el-form-item>
         <el-form-item>
-          <button class="btn btn-ghost btn-outline">清除</button>
+          <button class="btn btn-ghost btn-outline" @click="clearEvent">清除</button>
         </el-form-item>
         <el-form-item>
           <button class="btn btn-primary" @click="addEvent">+新增学科</button>
@@ -42,15 +42,15 @@
         <el-table-column prop="name" label="学科名称"> </el-table-column>
         <el-table-column prop="short_name" label="学科简称"> </el-table-column>
         <el-table-column prop="username" label="创建者"> </el-table-column>
-        <el-table-column prop="update_time" label="创建日期"> </el-table-column>
+        <el-table-column prop="update_time" label="创建日期" width="200px"> </el-table-column>
         <el-table-column prop="status" label="状态">
           <template #default="{ row }">
             <div>
-              {{ row.status == 1 ? '启用' : '禁用' }}
+              {{ row.status == 1 ? '禁用' : '启用' }}
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="operation" label="操作">
+        <el-table-column prop="operation" label="操作" width="200px">
           <template #default="{ row }">
             <el-button type="text" size="medium" @click="editEvent(row)">编辑</el-button>
             <el-button type="text" size="medium" @click="stopEvent(row)">{{ row.status == 1 ? '启用' : '禁用' }}</el-button>
@@ -72,7 +72,7 @@
       </div>
     </el-card>
 
-    <Add ref="add" @getdata="getData()" />
+    <Add ref="add" @getdata="getData(page)" />
   </div>
 </template>
 
@@ -94,6 +94,8 @@ export default {
         username: '',
         status: '',
       },
+      search: '',
+      searchform: {},
       list: [],
       page: {
         page: 1,
@@ -102,6 +104,13 @@ export default {
       commonData,
       total: 50,
     }
+  },
+  watch: {
+    search(val) {
+      if (val) {
+        this.searchform = JSON.parse(JSON.stringify(this.formsubject))
+      }
+    },
   },
   created() {
     this.getData(this.page)
@@ -115,7 +124,11 @@ export default {
       // console.log(res)
     },
     sizeChange() {
-      this.getData(this.page)
+      if (this.search) {
+        this.getData({ ...this.searchform, ...this.page })
+      } else {
+        this.getData(this.page)
+      }
       jsCookie.set('www', this.page.limit)
     },
     // 新增
@@ -148,19 +161,29 @@ export default {
       if (res.code === 200) {
         row.status = row.status ? 0 : 1
       }
-      this.getData()
+      // if (this.search) {
+      //   this.getData({ ...this.searchform, ...this.page })
+      // } else {
+      //   this.getData(this.page)
+      // }
     },
     // 搜索
     async searchEvent() {
-      const res = await subjectListAPI({ ...this.page, ...this.formsubject })
-      console.log(res)
-      this.list = res.data.items
-      this.total = res.data.pagination.total
+      if (Object.values(this.formsubject).some((i) => i)) {
+        this.search = true
+        const res = await subjectListAPI({ ...this.formsubject, ...this.page })
+        console.log(res)
+        this.list = res.data.items
+        this.total = res.data.pagination.total
+      } else {
+        this.$message.error('请输入搜索内容')
+      }
     },
     //清空
-    // emptyEvent() {
-    //   this.formsubject = ''
-    // },
+    clearEvent() {
+      Object.keys(this.formsubject).forEach((i) => (this.formsubject[i] = ''))
+      this.getData()
+    },
   },
 }
 </script>
