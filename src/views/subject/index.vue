@@ -42,7 +42,7 @@
         <el-table-column prop="name" label="学科名称"> </el-table-column>
         <el-table-column prop="short_name" label="学科简称"> </el-table-column>
         <el-table-column prop="username" label="创建者"> </el-table-column>
-        <el-table-column prop="update_time" label="创建日期" width="200px"> </el-table-column>
+        <el-table-column prop="update_time" label="创建日期"> </el-table-column>
         <el-table-column prop="status" label="状态">
           <template #default="{ row }">
             <div>
@@ -50,7 +50,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="operation" label="操作" width="200px">
+        <el-table-column prop="operation" label="操作">
           <template #default="{ row }">
             <el-button type="text" size="medium" @click="editEvent(row)">编辑</el-button>
             <el-button type="text" size="medium" @click="stopEvent(row)">{{ row.status == 1 ? '启用' : '禁用' }}</el-button>
