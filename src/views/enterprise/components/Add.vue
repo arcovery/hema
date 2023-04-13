@@ -50,23 +50,10 @@ export default {
       },
       rules: {
         eid: [
-          { required: true, message: '请输入企业编号', trigger: 'change' },
-          {
-            validator: (rule, value, callback) => {
-              const AddEid = this.add.every((item) => item.eid !== value)
-              AddEid ? callback() : callback(new Error('企业编号重复:' + value))
-            },
-          },
+          { required: true, mesAsage: '请输入企业编号', trigger: 'change' },
+          { pattern: /^[A-Za-z0-9]+$/, message: '请输入正确企业编号', trigger: 'change' },
         ],
-        name: [
-          { required: true, message: '请输入企业名称', trigger: 'change' },
-          {
-            validator: (rule, value, callback) => {
-              const AddName = this.add.every((item) => item.name !== value)
-              AddName ? callback() : callback(new Error('企业名称重复:' + value))
-            },
-          },
-        ],
+        name: [{ required: true, message: '请输入企业名称', trigger: 'change' }],
         short_name: [{ required: true, message: '请输入企业简称', trigger: 'change' }],
         intro: [{ required: true, message: '请输入企业简介', trigger: 'change' }],
       },
@@ -78,18 +65,23 @@ export default {
         if (result) {
           if (this.mode === 'add') {
             const res = await enterpriseAddAPI(this.form)
-            this.$message.success('新增员工成功')
-            // 关闭弹框
-            this.isShow = false
-            // 刷新父级列表数据，
-            this.$emit('getData') // 需要父级组件内在Add组件标签上绑定getData方法
-            // 父级组件内 <Add   @getData="getData" />
+            console.log(res)
+            if (res.code === 200) {
+              this.$message.success('新增成功')
+              // 关闭弹框
+              this.isShow = false
+              // 刷新父级列表数据，
+              this.$emit('getData') // 需要父级组件内在Add组件标签上绑定getData方法
+              // 父级组件内 <Add   @getData="getData" />
+            } else {
+              this.$message.error(res.message)
+            }
           } else if (this.mode === 'edit') {
-            const res = await enterpriseEditAPI({
+            await enterpriseEditAPI({
               id: this.id,
               ...this.form,
             })
-            this.$message.success('编辑员工成功')
+            this.$message.success('编辑成功')
             // 关闭弹框
             this.isShow = false
             // 刷新父级列表数据，
