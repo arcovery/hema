@@ -104,7 +104,7 @@ export default {
     // 搜索
     searchEvent() {
       if (Object.keys(this.search).some((i) => this.search[i] != '')) {
-        this.$emit('searchEvent', this.search)
+        this.$emit('searchEvent', this.search, true)
       } else {
         this.$message.error({ message: '请输入搜索内容' })
       }
@@ -112,7 +112,7 @@ export default {
     //重置
     resetEvent() {
       Object.keys(this.search).forEach((i) => (this.search[i] = ''))
-      this.$emit('searchEvent', {})
+      this.$emit('searchEvent', this.search, false)
     },
     // 显示新增对话框
     DialogerShow() {
