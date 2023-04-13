@@ -1,5 +1,5 @@
 <template>
-  <div style="border: 1px solid #ccc" class="dialogBox">
+  <div style="border: 1px solid #ccc; z-index: 9999" class="dialogBox">
     <Toolbar style="border-bottom: 1px solid #ccc" :editor="editor" :default-config="toolbarConfig" :mode="mode" />
     <Editor v-model="html" :style="{ height: height + 'px' }" style="overflow-y: hidden" :default-config="editorConfig" :mode="mode" @onChange="onChange" @onCreated="onCreated" />
   </div>
@@ -7,6 +7,7 @@
 <script>
 import Vue from 'vue'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
+import { getJSON } from 'js-cookie'
 
 export default Vue.extend({
   components: { Editor, Toolbar },
@@ -32,6 +33,11 @@ export default Vue.extend({
       editorConfig: { placeholder: '请输入内容...' },
     }
   },
+  watch: {
+    title(val) {
+      this.html = val
+    },
+  },
   mounted() {
     // // 模拟 ajax 请求，异步渲染编辑器
     // setTimeout(() => {
@@ -49,6 +55,7 @@ export default Vue.extend({
     },
     onChange() {
       this.$emit('update:title', this.html)
+      this.$emit('validate')
     },
   },
 })

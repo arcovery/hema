@@ -29,7 +29,7 @@
       <el-checkbox v-model="loginForm.check">我已阅读并同意<span class="check">用户协议</span>和<span class="check">隐私条款</span></el-checkbox>
     </el-form-item>
 
-    <button :class="{ loading: loading, 'btn-disabled': loading }" class="btn btn-primary" style="width: 100%; margin-bottom: 30px" @click.prevent="handleLogin">登录</button>
+    <button :class="{ loading: loading, 'btn-disabled': loading }" type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 30px" @click.prevent="handleLogin">登录</button>
   </el-form>
 </template>
 
