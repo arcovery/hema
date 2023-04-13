@@ -112,10 +112,14 @@ export default {
     },
   },
   watch: {
-    search(val) {
-      if (val) {
-        this.searchForm = JSON.parse(JSON.stringify(this.form))
-      }
+    search: {
+      immediate: true,
+      handler(val) {
+        if (val) {
+          console.log(123)
+          this.searchForm = JSON.parse(JSON.stringify(this.form))
+        }
+      },
     },
   },
   created() {
