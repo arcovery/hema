@@ -13,10 +13,13 @@
   },
   "dependencies": {
     "@intlify/unplugin-vue-i18n": "^0.10.0",
+    "@wangeditor/editor": "^5.1.23",
+    "@wangeditor/editor-for-vue": "^1.0.2",
     "axios": "0.18.1",
     "core-js": "3.6.5",
     "daisyui": "^2.51.5",
     "echarts": "^5.4.2",
+    "element-china-area-data": "^5.0.2",
     "element-ui": "2.13.2",
     "js-cookie": "^2.2.1",
     "normalize.css": "7.0.0",

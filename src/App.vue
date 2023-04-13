@@ -7,6 +7,7 @@
 <script>
 import { mapState } from 'vuex'
 import Likes from './utils/likes'
+// import DevicePixelRatio from '@/utils/DevicePixelRatio'
 export default {
   name: 'App',
   data() {
@@ -27,6 +28,9 @@ export default {
   mounted() {
     this.likes = new Likes()
     this.switchEvent()
+  },
+  created() {
+    // new DevicePixelRatio().init()
   },
   methods: {
     switchEvent() {

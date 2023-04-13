@@ -13,7 +13,7 @@
       <el-input v-model="form.email" type="email" placeholder="邮箱" autocomplete="off"></el-input>
     </el-form-item>
     <el-form-item prop="avatar" label="头像">
-      <upload ref="upload" v-model="form.avatar"></upload>
+      <upload ref="upload" v-model="form.avatar" @validateField="validate"></upload>
     </el-form-item>
     <el-form-item prop="password" label="密码">
       <el-input v-model="form.password" placeholder="密码" type="password" autocomplete="off" show-password></el-input>
@@ -80,7 +80,7 @@ export default {
             trigger: ['blur', 'change'],
           },
         ],
-        avatar: [{ required: true, message: '请上传头像', trigger: 'blur' }],
+        avatar: [{ required: true, message: '请上传头像', trigger: 'change' }],
         rcode: [
           { required: true, message: '请输入验证码', trigger: 'blur' },
           { pattern: /^\d{4}$/, message: '请输入正确的验证码', trigger: ['change', 'blur'] },
@@ -93,6 +93,9 @@ export default {
     }
   },
   methods: {
+    validate() {
+      this.$refs.formRules.validateField('avatar')
+    },
     // 表单提交
     submit() {
       this.send = true
