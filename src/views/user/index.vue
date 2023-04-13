@@ -48,7 +48,7 @@
               <el-switch v-model="row.status" :active-value="0" :inactive-value="1" active-color="#13ce66" inactive-color="#ff4949" @click.native="useEvent(row)"> </el-switch>
             </template>
           </el-table-column>
-          <el-table-column label="操作">
+          <el-table-column width="230" label="操作">
             <template #default="{ row }">
               <el-button type="text" @click="editEvent(row)">编辑</el-button>
               <el-button type="text" @click="useEvent(row)">{{ row.status ? '启用' : '禁用' }}</el-button>
