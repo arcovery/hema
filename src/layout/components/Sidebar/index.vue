@@ -84,8 +84,10 @@ export default {
   },
 }
 </script>
+//
 <style lang="scss" scoped>
-.sidebar {
-  background-color: white !important;
-}
+// .sidebar {
+//   background-color: white !important;
+// }
+//
 </style>

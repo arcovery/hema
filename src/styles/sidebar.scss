@@ -35,10 +35,10 @@
 
     .el-scrollbar {
       height: 100%;
-      margin-top: 150%;
-      justify-content: center; /* 水平居中 */
-      align-items: center; 
-      
+      // margin-top: 150%;
+      // justify-content: center; /* 水平居中 */
+      // align-items: center;
+
     }
 
     &.has-logo {
@@ -56,9 +56,9 @@
       width: 100%;
       overflow: hidden;
     }
-    li{
-      background-color: white !important;
-    }
+    // li{
+    //   background-color: white !important;
+    // }
 
     .svg-icon {
       margin-right: 16px;
@@ -73,7 +73,7 @@
       border: none;
       height: 100%;
       width: 100% !important;
-      
+
     }
 
     // menu hover
@@ -91,11 +91,11 @@
     & .nest-menu .el-submenu>.el-submenu__title,
     & .el-submenu .el-menu-item {
       min-width: $sideBarWidth !important;
-      
 
-      &:hover {
-        background-color: $subMenuHover !important;
-      }
+
+      // &:hover {
+      //   background-color: $subMenuHover !important;
+      // }
     }
   }
 
