@@ -7,7 +7,7 @@
     </div>
     <div class="flex-none gap-2">
       <div class="form-control">
-        <input type="text" placeholder="Search" class="input input-bordered" />
+        <el-input type="text" placeholder="搜索" class="input input-bordered" />
       </div>
       <div class="tooltip tooltip-bottom" data-tip="提醒">
         <div class="dropdown dropdown-bottom dropdown-end">

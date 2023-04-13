@@ -2,10 +2,10 @@
   <div class="question-container">
     <QSelect @searchEvent="searchEvent" @DialogerShow="DialogerShow(false)"></QSelect>
 
-    <div class="card w-full bg-base-100 shadow-xl p-5">
+    <div v-if="data.length" class="card w-full bg-base-100 shadow-xl p-5">
       <!-- <button class="btn btn-primary">题库列表</button> -->
       <div class="overflow-x-auto w-full">
-        <table class="table w-full">
+        <table class="table w-full text-center">
           <!-- head -->
           <thead>
             <tr>
@@ -16,40 +16,42 @@
               </th>
               <th>序号</th>
               <th>题目</th>
-              <th>学科<span class="badge badge-sm">阶段</span></th>
+              <th>学科<span class="m-2">阶段</span></th>
               <th>题型</th>
-              <th>企业</th>
-              <th>创建者</th>
+              <th class="text-left">企业</th>
+              <th class="text-left">创建者</th>
               <th>状态</th>
               <th>访问量</th>
-              <th class="text-center">操作</th>
+              <th>操作</th>
               <th></th>
             </tr>
           </thead>
-          <tbody v-if="data.length">
-            <tr v-for="(item, index) in data" :key="item.id" class="">
+          <tbody>
+            <tr v-for="(item, index) in data" :key="index">
               <th>
                 <label>
                   <input type="checkbox" class="checkbox" />
                 </label>
               </th>
               <td>{{ index }}</td>
-              <td v-html="item.title"></td>
+              <td class="w-20 overflow-hidden text-ellipsis whitespace-nowrap">
+                <div v-html="item.title"></div>
+              </td>
               <td>
                 {{ item.subject_name }}
                 <br />
                 <span v-question:step="item.step" :class="{ 'badge-accent': item.step === 1, 'badge-primary': item.step === 2, 'badge-primary': item.step === 2 }" class="badge badge-sm"></span>
               </td>
               <td>
-                <span class="svg-container">
+                <!-- <span class="svg-container">
                   <svg-icon v-if="item.type === 1" icon-class="Single" />
                   <svg-icon v-else-if="item.type === 2" icon-class="Multiple" />
                   <svg-icon v-else icon-class="Answer" />
-                </span>
+                </span> -->
                 <span v-question:type="item.type"></span>
               </td>
               <td>
-                <div class="border text-center rounded-2xl">{{ item.enterprise_name }}</div>
+                <div class="text-left w-14 overflow-hidden text-ellipsis whitespace-nowrap">{{ item.enterprise_name }}</div>
               </td>
               <td>
                 <div class="flex items-center space-x-3">
@@ -72,12 +74,13 @@
               </td>
               <td>{{ item.reads }}</td>
 
-              <th class="text-center">
-                <button class="btn btn-ghost btn-xs" @click="editor(item)">编辑</button>
-                <button class="btn btn-ghost btn-xs text-red-600" @click="deleteEvent(item)">删除</button>
+              <th>
+                <button class="btn btn-ghost btn-sm" @click="editor(item)">编辑</button>
+                <button class="btn btn-ghost btn-sm text-red-600" @click="deleteEvent(item)">删除</button>
               </th>
             </tr>
           </tbody>
+
           <!-- foot -->
           <tfoot>
             <tr>
@@ -86,8 +89,8 @@
               <th>题目</th>
               <th>学科-阶段</th>
               <th>题型</th>
-              <th>企业</th>
-              <th>创建者</th>
+              <th class="text-left">企业</th>
+              <th class="text-left">创建者</th>
               <th>状态</th>
               <th>访问量</th>
               <th class="text-center">操作</th>
@@ -108,6 +111,17 @@
         @size-change="handleCurrentChange"
       >
       </el-pagination>
+    </div>
+    <div v-else>
+      <div class="hero bg-white rounded-3xl">
+        <div class="hero-content text-center">
+          <div class="max-w-md">
+            <h1 class="text-5xl font-bold">没有数据</h1>
+            <p class="py-6">请重试</p>
+            <button class="btn btn-primary" @click="initData()">确定</button>
+          </div>
+        </div>
+      </div>
     </div>
     <Dialoger ref="Dialoger" @initData="initData()"></Dialoger>
   </div>
@@ -166,7 +180,8 @@ export default {
     // 编辑对话框
     editor(item) {
       this.$refs.Dialoger.dialogFormVisible = true
-      this.$refs.Dialoger.form = item
+      this.$refs.Dialoger.isEdit = true
+      this.$refs.Dialoger.form = JSON.parse(JSON.stringify(item))
     },
     // 获取头像
     async getAvatar(username) {

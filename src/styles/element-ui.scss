@@ -48,7 +48,7 @@
 }
 
 .el-message-box__title {
-  font-size: 50px;
+  font-size: 40px;
   font-weight: 900;
 }
 .el-button {
@@ -99,7 +99,7 @@
   color: currentColor;
 }
 .el-message-box__content {
-  font-size: 20px;
+  font-size: 24px;
 }
 
 .el-button--primary {
@@ -178,4 +178,14 @@ $cursor: #fff;
   border-bottom-left-radius: 20px;
   border-bottom-right-radius: 20px;
   padding: 10px;
+}
+
+// message提示
+.el-message {
+    border-radius: 16px;
+}
+
+
+.el-textarea__inner{
+	border: none;
 }
