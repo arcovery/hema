@@ -82,9 +82,9 @@ export default ({ mode }) => {
       chunkSizeWarningLimit: 1000,
       rollupOptions: {
         output: {
-          chunkFileNames: 'static/js/[name]-[hash].js',
-          entryFileNames: 'static/js/[name]-[hash].js',
-          assetFileNames: 'static/[ext]/[name]-[hash].[ext]',
+          chunkFileNames: 'static/js/[hash].js',
+          entryFileNames: 'static/js/[hash].js',
+          assetFileNames: 'static/[ext]/[hash].[ext]',
           manualChunks(id) {
             // 静态资源分拆打包
             if (id.includes('node_modules')) {

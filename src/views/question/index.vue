@@ -33,7 +33,7 @@
                   <input type="checkbox" class="checkbox" />
                 </label>
               </th>
-              <td>{{ index }}</td>
+              <td>{{ (pagination.page - 1) * pagination.limit + index + 1 }}</td>
               <td class="w-20 overflow-hidden text-ellipsis whitespace-nowrap">
                 <div v-html="item.title"></div>
               </td>
@@ -145,6 +145,8 @@ export default {
         limit: Number(jsCookie.get('limit')) || 5,
       },
       data: [],
+      search: false,
+      searchForm: {},
     }
   },
   async created() {
@@ -159,7 +161,12 @@ export default {
 
     // 初始化数据
     async initData(data) {
-      const res = await questionListAPI(data)
+      let res = {}
+      if (this.search) {
+        res = await questionListAPI(Object.assign(this.searchForm, this.pagination))
+      } else {
+        res = await questionListAPI(data)
+      }
       this.total = res.data.pagination.total
       // this.pagination.page = res.data.pagination.page
       this.data = res.data.items
@@ -169,9 +176,10 @@ export default {
       questionStatusAPI({ id: data })
     },
     // 搜索事件
-    searchEvent(data) {
-      const res = Object.assign(data, this.pagination)
-      this.initData(res)
+    searchEvent(data, isSearch) {
+      this.search = isSearch
+      this.searchForm = data
+      this.initData()
     },
     // 显示对话框
     DialogerShow(status) {
