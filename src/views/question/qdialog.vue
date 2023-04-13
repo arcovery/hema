@@ -2,7 +2,7 @@
   <div>
     <el-dialog :before-close="handleClose" width="60%" :visible.sync="dialogFormVisible">
       <div slot="title">
-        <h2 class="card-title text-3xl">新增题目</h2>
+        <h2 class="card-title text-3xl">{{ isEdit ? '编辑题目' : '新增题目' }}</h2>
       </div>
       <el-form ref="form" :rules="rules" :model="form">
         <div class="flex justify-between flex-wrap">
@@ -55,7 +55,7 @@
               <el-radio-group v-model="form.type" class="flex items-center mr-5">
                 <div v-for="item in type" :key="item.id" class="flex items-center mr-5">
                   <div class="mr-2">{{ item.value }}</div>
-                  <input v-model="form.type" :value="item.id" type="radio" name="type" class="radio radio-primary" />
+                  <input v-model="form.type" :value="item.id" type="radio" name="type" class="radio radio-primary" @click="typeClick" />
                 </div>
               </el-radio-group>
             </div>
@@ -63,37 +63,53 @@
         </div>
         <h2 class="card-title mb-2 mr-2">试题标题</h2>
         <el-form-item prop="title">
-          <wang-editor :title.sync="form.title" :height="100" mode="simple"></wang-editor>
+          <wang-editor :title.sync="form.title" :height="100" mode="simple" @validate="validate('title')"></wang-editor>
         </el-form-item>
         <!-- 题目 -->
         <div class="mr-2 mb-2">
           <h2 v-question:type="form.type" class="card-title mb-2 mr-2"></h2>
         </div>
         <el-form-item v-if="form.type != 3" :prop="form.type == 1 ? 'single_select_answer' : 'multiple_select_answer'">
-          <el-radio-group v-model="form.single_select_answer" class="block">
-            <checkbox :title="form.type" :single-select.sync="form.single_select_answer" :multiple-select.sync="form.multiple_select_answer" :select-options.sync="form.select_options"></checkbox>
+          <el-radio-group v-model="answer" class="block">
+            <checkbox
+              :single-select.sync="form.single_select_answer"
+              :title="form.type"
+              :multiple-select.sync="form.multiple_select_answer"
+              :select-options.sync="form.select_options"
+              @validate="validate"
+            ></checkbox>
           </el-radio-group>
         </el-form-item>
         <div v-else>
           <el-form-item prop="short_answer">
-            <textarea v-model="form.short_answer" class="textarea textarea-bordered w-full my-8" placeholder="简答"></textarea>
+            <el-input v-model="form.short_answer" type="textarea" class="textarea textarea-bordered w-full my-8" placeholder="简答"></el-input>
           </el-form-item>
         </div>
         <div class="my-4">
           <h2 class="card-title mb-2 mr-2">答案解析</h2>
           <el-form-item prop="answer_analyze">
-            <wang-editor :title.sync="form.answer_analyze" :height="200"></wang-editor>
+            <wang-editor :title.sync="form.answer_analyze" :height="200" @validate="validate('answer_analyze')"></wang-editor>
+          </el-form-item>
+        </div>
+        <div class="my-4">
+          <h2 class="card-title mb-2 mr-2">视频解析</h2>
+          <el-form-item>
+            <uploadFile v-model="form.video" :type="'video'" :name="'file'">
+              <!-- <div>{{ scoped }}</div> -->
+              <i v-if="!form.video" class="el-icon-plus uploader-icon"></i>
+              <video v-if="form.video" :src="baseURL + form.video" class="w-72 h-72" controls />
+            </uploadFile>
           </el-form-item>
         </div>
         <div class="my-4">
           <h2 class="card-title mb-2 mr-2">备注</h2>
-          <el-form-item prop="remark">
-            <textarea v-model="form.remark" class="textarea textarea-bordered w-full" placeholder="备注"></textarea>
+          <el-form-item>
+            <el-input v-model="form.remark" type="textarea" class="textarea textarea-bordered w-full" placeholder="备注"></el-input>
           </el-form-item>
         </div>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <button class="btn mr-5" @click="handleClose">取 消</button>
+        <button class="btn mr-5 btn-ghost" @click="handleClose">取 消</button>
         <button class="btn btn-primary" @click="submitForm">确 定</button>
       </div>
     </el-dialog>
@@ -106,10 +122,13 @@ import wangEditor from './wangEditor.vue'
 import checkbox from './components/checkbox.vue'
 import { regionDataPlus } from 'element-china-area-data'
 import { questionAddAPI, questionEditAPI } from '@/api/question'
+import uploadFile from '@/components/upload/upload.vue'
+
 export default {
-  components: { wangEditor, checkbox },
+  components: { wangEditor, checkbox, uploadFile },
   data() {
     return {
+      baseURL: import.meta.env.VITE_APP_BASE_API,
       isEdit: false,
       dialogFormVisible: false,
       formLabelWidth: '120px',
@@ -129,7 +148,7 @@ export default {
         city: '', //									 array	[省、市、区县]
         type: 1, //									 	 string	题型 1单选 、2多选 、3简答
         difficulty: '', //						 int	题目难度 1简单 、2一般 、3困难
-        single_select_answer: '', //	 string	单选题答案
+        single_select_answer: 'A', //	 string	单选题答案
         multiple_select_answer: '', // array	多选题答案
         short_answer: '', //					 string	简答题答案
         video: '', //									 string	解析视频地址
@@ -190,6 +209,21 @@ export default {
       },
     },
   },
+  watch: {
+    'form.multiple_select_answer': {
+      immediate: true,
+      handler(val) {
+        console.log(val)
+        if (val === '') {
+          console.log('字符为空')
+          this.form.multiple_select_answer = []
+        } else if (typeof val == 'string') {
+          console.log('字符为字符串')
+          this.form.multiple_select_answer = val.split(',')
+        }
+      },
+    },
+  },
   mounted() {
     // 获取企业信息,学科信息
     this.$bus.$on('enterprise', (val) => {
@@ -200,32 +234,57 @@ export default {
     })
   },
   methods: {
+    validateMsg(e) {
+      console.log(this.rules[e][0].message)
+      this.$message.error(this.rules[e][0].message)
+    },
+    typeClick() {},
+    validate(v) {
+      this.$refs.form.validateField(v) // 重点！
+    },
     // 初始化数据
     initData() {
-      Object.keys(this.form).forEach((key) => {
-        if (key == 'select_options') {
-          this.form[key] = this.form[key].map((item) => {
-            return {
-              label: item.label,
-            }
-          })
-        } else if (key == 'type') {
-          return
-        } else {
-          this.form[key] = ''
-        }
-      })
+      this.dialogFormVisible = false
+      this.isEdit = false
+      this.form = {
+        title: '', //									 string	标题
+        // title: '关于HTML语义化，以下哪个说法是正确的？（ ）', //									 string	标题
+        subject: '', //								 int	学科id标识
+        step: '', //									 int	阶段1、初级 2、中级 3、高级
+        enterprise: '', //						 int	企业id标识
+        city: '', //									 array	[省、市、区县]
+        type: 1, //									 	 string	题型 1单选 、2多选 、3简答
+        difficulty: '', //						 int	题目难度 1简单 、2一般 、3困难
+        single_select_answer: '', //	 string	单选题答案
+        multiple_select_answer: '', // array	多选题答案
+        short_answer: '', //					 string	简答题答案
+        video: '', //									 string	解析视频地址
+        answer_analyze: '', //				 string	答案解析
+        // '<div data-w-e-type="todo"><input type="checkbox" disabled >1、<strong>什么是HTML语义化</strong>？<span style="color: rgb(225, 60, 57);">根据内容的结构化（内容语义化</span>），<span style="background-color: rgb(216, 68, 147);">选择合适的标签（</span><span style="background-color: rgb(216, 68, 147); font-size: 22px;"><strong>代码语义化</strong></span><span style="background-color: rgb(216, 68, 147);">）便于开发者阅读和写出更优雅的代码的同时让浏览器的爬虫和机器很好地解析。</span></div><div data-w-e-type="todo"><input type="checkbox" disabled >2、<strong>为什么要语义化？</strong><span style="font-size: 14px;"><u>为了在没有</u></span><span style="font-size: 14px; font-family: 微软雅黑;"><u>CSS</u></span><span style="font-size: 14px;"><u>的情况下，页面也能呈现出很好地内容结构、</u></span><span style="background-color: rgb(255, 236, 61); font-size: 14px;"><u>代码结构用户体验</u></span></div>', //				 string	答案解析
+        remark: '', //								 string	答案备注
+        select_options: [
+          { label: 'A', text: '', image: '' },
+          { label: 'B', text: '', image: '' },
+          { label: 'C', text: '', image: '' },
+          { label: 'D', text: '', image: '' },
+        ], //				 array	选项，介绍，图片介绍
+      }
       this.$refs.form.resetFields()
     },
     // 提交表单
     submitForm() {
-      this.$refs.form.validate(async (valid) => {
+      this.$refs.form.validate(async (valid, msg) => {
         if (valid) {
           const res = this.isEdit ? await questionEditAPI(this.form) : await questionAddAPI(this.form)
-          this.initData()
           console.log(res)
+          if (res.code == 200) {
+            this.initData()
+          }
         } else {
-          console.log('%c Line:203 🍋 验证失败', 'color:#f5ce50', '验证失败')
+          console.log(msg)
+          Object.keys(msg).some((key) => {
+            return this.$message.error(msg[key][0].message)
+          })
           return false
         }
       })
@@ -239,9 +298,7 @@ export default {
         showClose: false,
       })
         .then(() => {
-          this.dialogFormVisible = false
           this.initData()
-          this.$refs.form.resetFields()
         })
         .catch((action) => {
           console.log(action)
@@ -255,5 +312,16 @@ export default {
 .el-radio-group {
   font-size: 16px;
 }
+
+.uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 178px;
+  height: 178px;
+  line-height: 178px;
+  text-align: center;
+  &:hover {
+    color: #409eff;
+  }
+}
 </style>
-<style></style>

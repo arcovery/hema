@@ -103,7 +103,11 @@ export default {
   methods: {
     // 搜索
     searchEvent() {
-      this.$emit('searchEvent', this.search)
+      if (Object.keys(this.search).some((i) => this.search[i] != '')) {
+        this.$emit('searchEvent', this.search)
+      } else {
+        this.$message.error({ message: '请输入搜索内容' })
+      }
     },
     //重置
     resetEvent() {
