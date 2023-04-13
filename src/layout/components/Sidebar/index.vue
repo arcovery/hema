@@ -9,26 +9,20 @@
       </div>
       <div v-else class="avatar placeholder">
         <div class="bg-neutral-focus text-neutral-content rounded-full w-24">
-          <span class="text-3xl">{{ userInfo.name }}</span>
+          <span class="text-3xl">{{ userInfo.username }}</span>
         </div>
       </div>
 
-      <div class="card-title mt-3">{{ userInfo.name }}</div>
-      <div class="text-xl text-gray-400">@{{ userInfo.name }}</div>
+      <div class="card-title mt-3">{{ userInfo.username }}</div>
+      <div class="text-xl text-gray-400">{{ userInfo.role }}</div>
       <div class="w-full px-4 order-1">
         <div class="flex justify-center">
           <div class="p-3 text-center">
-            <span class="text-xl font-bold block uppercase tracking-wide">{{ 0 }}</span>
-            <span class="text-sm">关注</span>
+            <span class="text-xl font-bold block uppercase tracking-wide">20</span>
+            <span class="text-sm">待办</span>
           </div>
-          <div class="p-3 text-center">
-            <span class="text-xl font-bold block uppercase tracking-wide">{{ 0 }}</span
-            ><span class="text-sm">获赞</span>
-          </div>
-          <div class="p-3 text-center">
-            <span class="text-xl font-bold block uppercase tracking-wide">{{ 0 }}</span
-            ><span class="text-sm">粉丝</span>
-          </div>
+          <div class="p-3 text-center"><span class="text-xl font-bold block uppercase tracking-wide">12</span><span class="text-sm">提醒</span></div>
+          <div class="p-3 text-center"><span class="text-xl font-bold block uppercase tracking-wide">2</span><span class="text-sm">日程</span></div>
         </div>
       </div>
     </div>

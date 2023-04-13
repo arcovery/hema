@@ -103,7 +103,7 @@
         </div>
         <div class="my-4">
           <h2 class="card-title mb-2 mr-2">备注</h2>
-          <el-form-item>
+          <el-form-item prop="remark">
             <el-input v-model="form.remark" type="textarea" class="textarea textarea-bordered w-full" placeholder="备注"></el-input>
           </el-form-item>
         </div>
@@ -167,7 +167,10 @@ export default {
         ], //				 array	选项，介绍，图片介绍
       },
       rules: {
-        title: [{ required: true, message: '请输入标题', trigger: ['blur', 'change'] }],
+        title: [
+          { required: true, message: '请输入标题', trigger: ['blur', 'change'] },
+          { pattern: /^(?!<p><br><\/p>$).*$/, message: '请输入标题', trigger: ['blur', 'change'] },
+        ],
         subject: [{ required: true, message: '请输入学科', trigger: ['blur', 'change'] }],
         step: [{ required: true, message: '请输入阶段', trigger: ['blur', 'change'] }],
         enterprise: [{ required: true, message: '请输入企业', trigger: ['blur', 'change'] }],
@@ -178,7 +181,10 @@ export default {
         multiple_select_answer: [{ required: true, message: '请输入多选题答案', trigger: ['blur', 'change'] }],
         short_answer: [{ required: true, message: '请输入简答题答案', trigger: ['blur', 'change'] }],
         video: [{ required: true, message: '请上传视频', trigger: ['blur', 'change'] }],
-        answer_analyze: [{ required: true, message: '请输入答案解析', trigger: ['blur', 'change'] }],
+        answer_analyze: [
+          { required: true, message: '请输入答案解析', trigger: ['blur', 'change'] },
+          { pattern: /^(?!<p><br><\/p>$).*$/, message: '请输入答案解析', trigger: ['blur', 'change'] },
+        ],
         remark: [{ required: true, message: '请输入答案备注', trigger: ['blur', 'change'] }],
         select_options: [{ required: true, message: '请输入选项介绍图片介绍', trigger: ['blur', 'change'] }],
       },

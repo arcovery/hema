@@ -53,14 +53,14 @@ export default ({ mode }) => {
         iconDirs: [resolve(process.cwd(), 'src/icons/svg')],
         symbolId: 'icon-[dir]-[name]',
       }),
-      ...configCompressPlugin(isBuild, 'gzip'),
+      // ...configCompressPlugin(isBuild, 'gzip'),
     ],
     resolve: {
       alias: {
         '@': resolve(__dirname, './src'),
       },
     },
-    base: '/',
+    base: './',
     server: {
       port,
       open: true,
@@ -80,19 +80,19 @@ export default ({ mode }) => {
       assetsDir: 'static',
       sourcemap: false,
       chunkSizeWarningLimit: 1000,
-      rollupOptions: {
-        output: {
-          chunkFileNames: 'static/js/[hash].js',
-          entryFileNames: 'static/js/[hash].js',
-          assetFileNames: 'static/[ext]/[hash].[ext]',
-          manualChunks(id) {
-            // 静态资源分拆打包
-            if (id.includes('node_modules')) {
-              return id.toString().split('node_modules/')[1].split('/')[0].toString()
-            }
-          },
-        },
-      },
+      // rollupOptions: {
+      //   output: {
+      //     chunkFileNames: 'static/js/[hash].js',
+      //     entryFileNames: 'static/js/[hash].js',
+      //     assetFileNames: 'static/css/[hash].[ext]',
+      //     manualChunks(id) {
+      //       // 静态资源分拆打包
+      //       if (id.includes('node_modules')) {
+      //         return id.toString().split('node_modules/')[1].split('/')[0].toString()
+      //       }
+      //     },
+      //   },
+      // },
       minify: 'terser',
       terserOptions: {
         compress: {
