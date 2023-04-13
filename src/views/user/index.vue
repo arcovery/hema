@@ -3,10 +3,10 @@
     <el-card>
       <el-form ref="form" class="top" :inline="true" :model="form">
         <el-form-item label="用户名称">
-          <el-input v-model="form.username" />
+          <el-input v-model.trim="form.username" />
         </el-form-item>
         <el-form-item label="用户邮箱">
-          <el-input v-model="form.email" />
+          <el-input v-model.trim="form.email" />
         </el-form-item>
         <el-form-item label="角色">
           <el-select v-model="form.role_id">
@@ -45,7 +45,7 @@
           <el-table-column prop="status" label="状态" sortable>
             <template slot-scope="{ row }">
               <div>{{ row.status ? '禁用' : '启用' }}</div>
-              <el-switch v-model="row.status" :active-value="0" :inactive-value="1" active-color="#13ce66" inactive-color="#ff4949" @click.native="useEvent(row)"> </el-switch>
+              <el-switch v-model="row.status" :active-value="0" :inactive-value="1" active-color="#13ce66" inactive-color="#ff4949" @click.native="useEvent2(row)"> </el-switch>
             </template>
           </el-table-column>
           <el-table-column width="230" label="操作">
@@ -106,17 +106,16 @@ export default {
       value: '',
     }
   },
-  computed: {
-    empty() {
-      return Object.values(this.form).some((i) => i)
-    },
-  },
+  // computed: {
+  //   empty() {
+  //     return Object.values(this.form).some((i) => i)
+  //   },
+  // },
   watch: {
     search: {
       immediate: true,
       handler(val) {
         if (val) {
-          console.log(123)
           this.searchForm = JSON.parse(JSON.stringify(this.form))
         }
       },
@@ -200,17 +199,32 @@ export default {
         row.status = row.status ? 0 : 1
         // console.log('参数2', row.status)
       } else {
-        row.status = row.status ? 0 : 1
+        row.status = row.status ? 1 : 0
       }
-      // console.log(row.status)
+      console.log(row.status)
+    },
+    async useEvent2(row) {
+      console.log(row)
+      const res = await userStatusAPI({ id: row.id })
+      // console.log('参数', res)
+      if (res.code === 200) {
+        row.status = row.status ? 1 : 0
+        // console.log('参数2', row.status)
+      }
+      console.log(row.status)
     },
     async searchEvent() {
-      if (!this.empty) {
-        this.$message('请输入内容')
+      this.search = false
+      if (Object.values(this.form).some((i) => i)) {
+        // this.getData({ ...this.form, ...this.page }) //page: 1, limit: this.page.limit
+        this.page.page = 1
+        const res = await userListAPI({ ...this.form, ...this.page })
+        this.list = res.data.items
+        this.total = res.data.pagination.total
       } else {
-        this.search = true
-        this.getData({ ...this.form, page: 1, limit: this.page.limit }) //page: 1, limit: this.page.limit
+        this.$message('请输入内容')
       }
+      this.search = true
     },
     clearEvent() {
       this.search = false

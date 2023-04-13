@@ -42,7 +42,7 @@
         <el-table-column prop="name" label="学科名称"> </el-table-column>
         <el-table-column prop="short_name" label="学科简称"> </el-table-column>
         <el-table-column prop="username" label="创建者"> </el-table-column>
-        <el-table-column prop="update_time" label="创建日期" width="200px"> </el-table-column>
+        <el-table-column prop="update_time" label="创建日期"> </el-table-column>
         <el-table-column prop="status" label="状态">
           <template #default="{ row }">
             <div>
@@ -50,7 +50,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="operation" label="操作" width="200px">
+        <el-table-column prop="operation" label="操作">
           <template #default="{ row }">
             <el-button type="text" size="medium" @click="editEvent(row)">编辑</el-button>
             <el-button type="text" size="medium" @click="stopEvent(row)">{{ row.status == 1 ? '启用' : '禁用' }}</el-button>
@@ -145,7 +145,7 @@ export default {
         if (this.page.page > 1 && this.list.length === 1) {
           this.page.page--
         }
-        this.getData(this.page)
+        this.getData({ ...this.page, ...this.formsubject })
       }
     },
     // 编辑
@@ -171,19 +171,20 @@ export default {
     async searchEvent() {
       this.search = false
       if (Object.values(this.formsubject).some((i) => i)) {
+        this.page.page = 1
         const res = await subjectListAPI({ ...this.formsubject, ...this.page })
         console.log(res)
         this.list = res.data.items
         this.total = res.data.pagination.total
       } else {
-        this.$message.error('请输入搜索内容')
+        this.getData(this.page)
       }
       this.search = true
     },
     //清空
     clearEvent() {
       Object.keys(this.formsubject).forEach((i) => (this.formsubject[i] = ''))
-      this.getData()
+      this.getData(this.page)
     },
   },
 }
