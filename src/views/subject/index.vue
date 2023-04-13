@@ -169,8 +169,8 @@ export default {
     },
     // 搜索
     async searchEvent() {
+      this.search = false
       if (Object.values(this.formsubject).some((i) => i)) {
-        this.search = true
         const res = await subjectListAPI({ ...this.formsubject, ...this.page })
         console.log(res)
         this.list = res.data.items
@@ -178,6 +178,7 @@ export default {
       } else {
         this.$message.error('请输入搜索内容')
       }
+      this.search = true
     },
     //清空
     clearEvent() {
