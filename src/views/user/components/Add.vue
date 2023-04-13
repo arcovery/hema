@@ -1,7 +1,7 @@
 <template>
-  <el-dialog :title="{ add: '新增学科', edit: '编辑学科' }[mode]" :visible.sync="isShow" @close="closeEvent">
-    <el-form ref="form" :model="form" label-width="100px" :rules="rules">
-      <el-form-item label="用户名" prop="username">
+  <el-dialog width="30%" :title="{ add: '新增学科', edit: '编辑学科' }[mode]" :visible.sync="isShow" @close="closeEvent">
+    <el-form ref="form" :model="form" label-width="80px" :rules="rules">
+      <el-form-item label="用户名" prop="username" size="small">
         <el-input v-model="form.username" />
       </el-form-item>
       <el-form-item label="邮箱" prop="email">
@@ -26,7 +26,7 @@
     </el-form>
     <template #footer>
       <div style="text-align: center">
-        <button class="btn btn-primary" @click="submit">确定</button>
+        <button class="btn btn-primary" @keyup.enter="submit" @click="submit">确定</button>
         <button class="btn" @click="isShow = false">取消</button>
       </div>
     </template>
@@ -46,6 +46,7 @@ export default {
         username: '',
         email: '',
         phone: '',
+        role: '',
         role_id: '',
         status: '',
         remark: '',
