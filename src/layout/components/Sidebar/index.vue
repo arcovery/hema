@@ -1,5 +1,5 @@
 <template>
-  <div :class="{ 'has-logo': showLogo }">
+  <div :class="{ 'has-logo': showLogo }" class="sidebar">
     <logo v-if="showLogo" :collapse="isCollapse" />
     <div class="sl_sidebar_sugs flex flex-col items-center card p-2 z-10 text-white">
       <div v-if="userInfo" class="avatar">
@@ -84,3 +84,8 @@ export default {
   },
 }
 </script>
+<style lang="scss" scoped>
+.sidebar {
+  background-color: white !important;
+}
+</style>

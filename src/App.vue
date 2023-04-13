@@ -8,8 +8,10 @@
 import { mapState } from 'vuex'
 import Likes from './utils/likes'
 // import DevicePixelRatio from '@/utils/DevicePixelRatio'
+
 export default {
   name: 'App',
+
   data() {
     return {
       likes: null,
