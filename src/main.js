@@ -19,6 +19,9 @@ import '@/permission' // 权限 管理
 // 如果想要中文版 element-ui，按如下方式声明
 Vue.use(ElementUI)
 
+import PrintNb from 'vue-print-nb' //打印功能
+Vue.use(PrintNb)
+
 Vue.config.productionTip = false
 import { detectZoom } from '@/utils/detectZoom'
 // 处理笔记本系统默认系统比例为150%带来的布局影响
