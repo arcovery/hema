@@ -7,8 +7,10 @@
 <script>
 import { mapState } from 'vuex'
 import Likes from './utils/likes'
+
 export default {
   name: 'App',
+
   data() {
     return {
       likes: null,

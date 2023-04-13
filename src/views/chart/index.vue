@@ -1,6 +1,11 @@
 <template>
   <div class="dashboard">
     <el-card>
+      <div class="ech2">
+        <div id="he-plugin-standard" class="kiss"></div>
+      </div>
+    </el-card>
+    <el-card>
       <div class="vessel">
         <div class="vessel_v">
           <div class="circle">{{ total.increment_users }}</div>
@@ -32,7 +37,7 @@
     </el-card>
 
     <el-card>
-      <div class="ech" id="main"></div>
+      <div id="main" class="ech"></div>
     </el-card>
   </div>
 </template>
@@ -42,7 +47,7 @@ import * as echarts from 'echarts'
 import { chatTitleAPI, enterpriseDataAPI } from '@/api/charts'
 
 export default {
-  data () {
+  data() {
     return {
       total: {
         total_done_questions: '', //	int	刷题总数
@@ -50,17 +55,32 @@ export default {
         total_users: '', //	int	用户总数
         increment_users: '', //	int	今日增长用户数量
         increment_questions: '', //	int	今日增加题数
-        total_questions: '' //	int	题总数量
+        total_questions: '', //	int	题总数量
       },
-      data: []
+      data: [],
     }
   },
-  async created () {
-    let res = await chatTitleAPI()
+
+  async created() {
+    const res = await chatTitleAPI()
     this.total = res.data
+    window.WIDGET = {
+      CONFIG: {
+        layout: '1',
+        width: '450',
+        height: '150',
+        background: '5',
+        dataColor: 'E6B8AF',
+        key: '78a1999dc7694bd883b032fdfab08b31',
+      },
+    }
+    const script = document.createElement('script')
+    script.type = 'text/javascript'
+    script.src = 'https://widget.qweather.net/standard/static/js/he-standard-common.js?v=2.0'
+    document.getElementsByTagName('head')[0].appendChild(script)
   },
-  async mounted () {
-    let res2 = await enterpriseDataAPI()
+  async mounted() {
+    const res2 = await enterpriseDataAPI()
     this.data = res2.data
 
     // 1. 实例化对象
@@ -68,16 +88,16 @@ export default {
 
     // 2. 指定数据和配置
     const option = {
-      title: {  subtext: '数据分析', left: 'center' },
+      title: { subtext: '数据分析', left: 'center' },
 
       tooltip: {
         trigger: 'item',
-        formatter: '{a}<br/>{b}:{c}({d}%)'
+        formatter: '{a}<br/>{b}:{c}({d}%)',
       },
       legend: {
         orient: 'vertical',
         right: 10,
-        top: 30
+        top: 30,
       },
       series: [
         {
@@ -87,16 +107,16 @@ export default {
           avoidLabelOverlap: false,
           label: { show: false, position: 'center' },
           emphasis: {
-            label: { show: true, fontSize: '40', fontWeight: 'bold' }
+            label: { show: true, fontSize: '40', fontWeight: 'bold' },
           },
           labelLine: { show: false },
-          data: this.data
-        }
-      ]
+          data: this.data,
+        },
+      ],
     }
     // 3. 把数据和配置给实例对象
     myChart.setOption(option)
-  }
+  },
 }
 </script>
 
@@ -127,7 +147,16 @@ export default {
   .ech {
     float: none;
     width: 1400px;
-    height: 440px;
+    height: 600px;
+  }
+  .ech2 {
+    display: flex;
+    width: 1400px;
+    height: 150px;
+    justify-content: center;
+    .kiss {
+      display: flex;
+    }
   }
 }
 </style>
