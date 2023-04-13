@@ -1,12 +1,26 @@
 <template>
-  <el-upload class="avatar-uploader" :action="baseURL + '/uploads'" name="image" :show-file-list="false" :before-upload="beforeAvatarUpload" :http-request="httpRequest">
-    <img v-if="imageUrl" :src="imageUrl" class="avatar" />
-    <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+  <el-upload :class="{ 'avatar-uploader': !action }" :action="baseURL + '/uploads'" name="image" :show-file-list="false" :before-upload="beforeAvatarUpload" :http-request="httpRequest">
+    <slot></slot>
+    <div v-if="!action">
+      <img v-if="imageUrl" :src="imageUrl" class="avatar" />
+      <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+    </div>
   </el-upload>
 </template>
 <script>
 import { uploadsAPI } from '@/api/login'
+import { questionUploadAPI } from '@/api/question'
 export default {
+  props: {
+    action: {
+      type: Boolean,
+      default: false,
+    },
+    name: {
+      type: String,
+      default: 'image',
+    },
+  },
   data() {
     return {
       imageUrl: '',
@@ -37,10 +51,13 @@ export default {
     async httpRequest(res) {
       // res.file上传文件的文件对象
       const data = new FormData()
-      data.append('image', res.file)
-      const apiRes = await uploadsAPI(data)
-      this.imageUrl = this.baseURL + '/' + apiRes.data.file_path
-      this.$emit('input', apiRes.data.file_path)
+      const name = this.action ? 'file' : 'image'
+      data.append(name, res.file)
+      const apiRes = this.action ? await questionUploadAPI(data) : await uploadsAPI(data)
+      const file = this.action ? apiRes.data.url : apiRes.data.file_path
+      this.imageUrl = this.baseURL + '/' + file
+      this.$emit('input', file)
+      this.$emit('validateField')
       console.log('httpRequest', apiRes)
     },
   },
